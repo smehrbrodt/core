@@ -260,7 +260,11 @@ bool QuartzSalBitmap::CreateContext()
     {
         // convert user data to 32 bit
         nContextBytesPerRow = mnWidth << 2;
+#ifdef __OBJC__
+        @try
+#else
         try
+#endif
         {
             maContextBuffer.reset( new sal_uInt8[ mnHeight * nContextBytesPerRow ] );
 #ifdef DBG_UTIL
@@ -275,7 +279,11 @@ bool QuartzSalBitmap::CreateContext()
                                    mnBits, mnBytesPerRow, maPalette, maUserBuffer.get() );
             }
         }
+#ifdef __OBJC__
+        @catch( ... )
+#else
         catch( const std::bad_alloc& )
+#endif
         {
             mxGraphicContext = nullptr;
         }
@@ -320,12 +328,20 @@ bool QuartzSalBitmap::AllocateUserData()
     if (mnBytesPerRow != 0 &&
         mnBytesPerRow <= std::numeric_limits<sal_uInt32>::max() / mnHeight)
     {
+#ifdef __OBJC__
+        @try
+#else
         try
+#endif
         {
             maUserBuffer.reset( new sal_uInt8[mnBytesPerRow * mnHeight] );
             alloc = true;
         }
+#ifdef __OBJC__
+        @catch (...) {}
+#else
         catch (std::bad_alloc &) {}
+#endif
     }
     if (!alloc)
     {
