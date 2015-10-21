@@ -752,10 +752,13 @@ void OCommonEmbeddedObject::StoreDocToStorage_Impl(
     const OUString& aHierarchName,
     bool bAttachToTheStorage )
 {
-    SAL_WARN_IF( !xStorage.is(), "embeddedobj.common", "No storage is provided for storing!" );
+    SAL_INFO( "embeddedobj.common", "entering >>OCommonEmbeddedObject::StoreDocToStorage_Impl<<" );
 
     if ( !xStorage.is() )
-        throw uno::RuntimeException(); // TODO:
+    {
+        SAL_WARN( "embeddedobj.common", "No storage is provided for storing" );
+        return; // just return enjoying the silence
+    }
 
     uno::Reference< document::XStorageBasedDocument > xDoc;
     {
@@ -790,7 +793,12 @@ void OCommonEmbeddedObject::StoreDocToStorage_Impl(
         aArgs[4].Name = "DestinationShellID";
         aArgs[4].Value <<= getStringPropertyValue(rObjArgs, "DestinationShellID");
 
-        xDoc->storeToStorage( xStorage, aArgs );
+        try
+        {
+            xDoc->storeToStorage( xStorage, aArgs );
+        }
+        catch ( ... ) { }
+
         if ( bAttachToTheStorage )
             SwitchDocToStorage_Impl( xDoc, xStorage );
     }
@@ -1160,6 +1168,8 @@ void SAL_CALL OCommonEmbeddedObject::storeToEntry( const uno::Reference< embed::
                 uno::Exception,
                 uno::RuntimeException, std::exception )
 {
+    SAL_INFO( "embeddedobj.common", "entering >>OCommonEmbeddedObject::storeToEntry<<" );
+
     ::osl::ResettableMutexGuard aGuard( m_aMutex );
     if ( m_bDisposed )
         throw lang::DisposedException(); // TODO
@@ -1291,6 +1301,8 @@ void SAL_CALL OCommonEmbeddedObject::storeAsEntry( const uno::Reference< embed::
                 uno::Exception,
                 uno::RuntimeException, std::exception )
 {
+    SAL_INFO( "embeddedobj.common", "entering >>OCommonEmbeddedObject::storeAsEntry<<" );
+
     // TODO: use lObjArgs
 
     ::osl::ResettableMutexGuard aGuard( m_aMutex );

@@ -355,10 +355,8 @@ namespace sfx2
                 }
             }
         }
-        catch( const Exception& )
-        {
-            DBG_UNHANDLED_EXCEPTION();
-        }
+        catch( ... )
+        { DBG_UNHANDLED_EXCEPTION(); }
         return bHasMacroLib;
     }
 
@@ -372,14 +370,12 @@ namespace sfx2
             Reference< XEmbeddedScripts > xScripts( m_xData->m_rDocumentAccess.getEmbeddedDocumentScripts() );
             Reference< XLibraryContainer > xContainer;
             if ( xScripts.is() )
-                xContainer.set( xScripts->getBasicLibraries(), UNO_QUERY_THROW );
+                xContainer.set( xScripts->getBasicLibraries(), UNO_QUERY );
             bHasMacroLib = containerHasBasicMacros( xContainer );
 
         }
-        catch( const Exception& )
-        {
-            DBG_UNHANDLED_EXCEPTION();
-        }
+        catch( ... )
+        { DBG_UNHANDLED_EXCEPTION(); }
 #endif
         return bHasMacroLib;
     }
@@ -403,10 +399,8 @@ namespace sfx2
                                 )
                             );
             }
-            catch ( const Exception& )
-            {
-                DBG_UNHANDLED_EXCEPTION();
-            }
+            catch ( ... )
+            { DBG_UNHANDLED_EXCEPTION(); }
         }
         return bHasMacros;
     }
