@@ -141,7 +141,6 @@ public class PlainSourceView extends JScrollPane implements
         undoManager = new UndoManager();
         undoManager.setLimit(noLimit);
         ta.getDocument().addUndoableEditListener(new UndoableEditListener(){
-            @Override
             public void undoableEditHappened(UndoableEditEvent editEvent) {
                 if(compoundEdit == null){
                     compoundEdit = new CompoundEdit();
@@ -154,7 +153,6 @@ public class PlainSourceView extends JScrollPane implements
         ta.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK), redoKey);
 
         ta.addKeyListener(new KeyAdapter(){
-            @Override
             public void keyReleased(KeyEvent ke){
                 if(ke.getKeyCode() == KeyEvent.VK_SPACE || ke.getKeyCode() == KeyEvent.VK_ENTER){
                     compoundEdit.end();
@@ -165,14 +163,12 @@ public class PlainSourceView extends JScrollPane implements
         });
 
         ta.getActionMap().put(undoKey, new AbstractAction(undoKey){
-            @Override
             public void actionPerformed(ActionEvent event) {
                 undo();
             }
         });
 
         ta.getActionMap().put(redoKey, new AbstractAction(redoKey){
-            @Override
             public void actionPerformed(ActionEvent event) {
                 redo();
             }
@@ -257,7 +253,6 @@ class GlyphGutter extends JComponent {
         setSize(d);
     }
 
-    @Override
     public void paintComponent(Graphics g) {
         JTextArea textArea = view.getTextArea();
 
