@@ -21,12 +21,12 @@
 
 #include <sal/config.h>
 
-#include <sfx2/sidebar/AsynchronousCall.hxx>
-#include <sfx2/sidebar/Context.hxx>
-#include <sfx2/sidebar/FocusManager.hxx>
-#include <sfx2/sidebar/Panel.hxx>
-#include <sfx2/sidebar/ResourceManager.hxx>
-#include <sfx2/sidebar/TabBar.hxx>
+#include <sfx2/abstractbar/AsynchronousCall.hxx>
+#include <sfx2/abstractbar/Context.hxx>
+#include <sfx2/abstractbar/FocusManager.hxx>
+#include <sfx2/abstractbar/Panel.hxx>
+#include <sfx2/abstractbar/ResourceManager.hxx>
+#include <sfx2/abstractbar/TabBar.hxx>
 
 #include <vcl/menu.hxx>
 
@@ -55,14 +55,17 @@ namespace
 class SfxSplitWindow;
 class FixedBitmap;
 
+namespace sfx2 { namespace abstractbar  {
+    class ContentPanelDescriptor;
+    class Deck;
+    class DeckDescriptor;
+    class TabBar;
+    class TabBarConfiguration;
+}}
+
 namespace sfx2 { namespace sidebar {
 
-class ContentPanelDescriptor;
-class Deck;
-class DeckDescriptor;
 class SidebarDockingWindow;
-class TabBar;
-class TabBarConfiguration;
 
 class SFX2_DLLPUBLIC SidebarController
     : private ::cppu::BaseMutex,
@@ -139,13 +142,13 @@ public:
      */
     bool IsDeckVisible (const ::rtl::OUString& rsDeckId);
 
-    FocusManager& GetFocusManager() { return maFocusManager;}
+    abstractbar::FocusManager& GetFocusManager() { return maFocusManager;}
 
-    ResourceManager* GetResourceManager() { return mpResourceManager.get();}
+    abstractbar::ResourceManager* GetResourceManager() { return mpResourceManager.get();}
 
    // std::unique_ptr<ResourceManager> GetResourceManager() { return mpResourceManager;}
 
-    Context GetCurrentContext() const { return maCurrentContext;}
+    abstractbar::Context GetCurrentContext() const { return maCurrentContext;}
     bool IsDocumentReadOnly (void) const { return mbIsDocumentReadOnly;}
 
     void SwitchToDeck ( const ::rtl::OUString& rsDeckId);
@@ -154,8 +157,8 @@ public:
     void CreateDeck(const ::rtl::OUString& rDeckId, bool bForceCreate = false);
     void CreatePanels(const ::rtl::OUString& rDeckId);
 
-    ResourceManager::DeckContextDescriptorContainer GetMatchingDecks();
-    ResourceManager::PanelContextDescriptorContainer GetMatchingPanels( const ::rtl::OUString& rDeckId);
+    abstractbar::ResourceManager::DeckContextDescriptorContainer GetMatchingDecks();
+    abstractbar::ResourceManager::PanelContextDescriptorContainer GetMatchingPanels( const ::rtl::OUString& rDeckId);
 
     void notifyDeckTitle(const OUString& targetDeckId);
 
@@ -165,19 +168,19 @@ public:
 
 private:
 
-    VclPtr<Deck> mpCurrentDeck;
+    VclPtr<abstractbar::Deck> mpCurrentDeck;
     VclPtr<SidebarDockingWindow> mpParentWindow;
-    VclPtr<TabBar> mpTabBar;
+    VclPtr<abstractbar::TabBar> mpTabBar;
     css::uno::Reference<css::frame::XFrame> mxFrame;
-    Context maCurrentContext;
-    Context maRequestedContext;
+    abstractbar::Context maCurrentContext;
+    abstractbar::Context maRequestedContext;
     css::uno::Reference<css::frame::XController> mxCurrentController;
     /// Use a combination of SwitchFlag_* as value.
     sal_Int32 mnRequestedForceFlags;
     ::rtl::OUString msCurrentDeckId;
-    AsynchronousCall maPropertyChangeForwarder;
-    AsynchronousCall maContextChangeUpdate;
-    AsynchronousCall maAsynchronousDeckSwitch;
+    abstractbar::AsynchronousCall maPropertyChangeForwarder;
+    abstractbar::AsynchronousCall maContextChangeUpdate;
+    abstractbar::AsynchronousCall maAsynchronousDeckSwitch;
 
     /** Two flags control whether the deck is displayed or if only the
         tab bar remains visible.
@@ -195,7 +198,7 @@ private:
         so that it can be restored when the deck is reopened.
     */
     sal_Int32 mnSavedSidebarWidth;
-    FocusManager maFocusManager;
+    abstractbar::FocusManager maFocusManager;
     css::uno::Reference<css::frame::XDispatch> mxReadOnlyModeDispatch;
     bool mbIsDocumentReadOnly;
     VclPtr<SfxSplitWindow> mpSplitWindow;
@@ -218,23 +221,23 @@ private:
         const css::uno::Reference<css::awt::XWindowPeer>& rxWindow,
         const ::rtl::OUString& rsImplementationURL,
         const bool bWantsCanvas,
-        const Context& rContext);
+        const abstractbar::Context& rContext);
 
-    VclPtr<Panel> CreatePanel (
+    VclPtr<abstractbar::Panel> CreatePanel (
         const ::rtl::OUString& rsPanelId,
         vcl::Window* pParentWindow,
         const bool bIsInitiallyExpanded,
-        const Context& rContext,
-        VclPtr<Deck> pDeck);
+        const abstractbar::Context& rContext,
+        VclPtr<abstractbar::Deck> pDeck);
 
     void SwitchToDeck (
-        const DeckDescriptor& rDeckDescriptor,
-        const Context& rContext);
+        const abstractbar::DeckDescriptor& rDeckDescriptor,
+        const abstractbar::Context& rContext);
     void ShowPopupMenu (
         const Rectangle& rButtonBox,
-        const ::std::vector<TabBar::DeckMenuData>& rMenuData) const;
+        const ::std::vector<abstractbar::TabBar::DeckMenuData>& rMenuData) const;
     std::shared_ptr<PopupMenu> CreatePopupMenu (
-        const ::std::vector<TabBar::DeckMenuData>& rMenuData) const;
+        const ::std::vector<abstractbar::TabBar::DeckMenuData>& rMenuData) const;
     DECL_LINK_TYPED(OnMenuItemSelected, Menu*, bool);
     void BroadcastPropertyChange();
 
@@ -265,11 +268,11 @@ private:
         Tries to scroll the deck up or down to make the given panel
         completely visible.
     */
-    void ShowPanel (const Panel& rPanel);
+    void ShowPanel (const abstractbar::Panel& rPanel);
 
     virtual void SAL_CALL disposing() override;
 
-    std::unique_ptr<ResourceManager> mpResourceManager;
+    std::unique_ptr<abstractbar::ResourceManager> mpResourceManager;
 
 };
 

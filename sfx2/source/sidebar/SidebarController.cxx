@@ -17,18 +17,18 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 #include <sfx2/sidebar/SidebarController.hxx>
-#include <sfx2/sidebar/Deck.hxx>
-#include <sfx2/sidebar/DeckTitleBar.hxx>
-#include <sfx2/sidebar/Panel.hxx>
-#include <sfx2/sidebar/PanelTitleBar.hxx>
-#include <sfx2/sidebar/SidebarResource.hxx>
-#include <sfx2/sidebar/TabBar.hxx>
-#include <sfx2/sidebar/Theme.hxx>
+#include <sfx2/abstractbar/Deck.hxx>
+#include <sfx2/abstractbar/DeckTitleBar.hxx>
+#include <sfx2/abstractbar/Panel.hxx>
+#include <sfx2/abstractbar/PanelTitleBar.hxx>
+#include <sfx2/abstractbar/SidebarResource.hxx>
+#include <sfx2/abstractbar/TabBar.hxx>
+#include <sfx2/abstractbar/Theme.hxx>
 #include <sfx2/sidebar/SidebarChildWindow.hxx>
-#include <sfx2/sidebar/Tools.hxx>
+#include <sfx2/abstractbar/Tools.hxx>
 #include <sfx2/sidebar/SidebarDockingWindow.hxx>
-#include <sfx2/sidebar/Context.hxx>
-#include <sfx2/sidebar/ContextList.hxx>
+#include <sfx2/abstractbar/Context.hxx>
+#include <sfx2/abstractbar/ContextList.hxx>
 
 
 #include <sfx2/sfxresid.hxx>
@@ -57,6 +57,7 @@
 
 using namespace css;
 using namespace css::uno;
+using namespace sfx2::abstractbar;
 
 namespace
 {
