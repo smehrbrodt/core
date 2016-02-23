@@ -35,12 +35,9 @@ class Button;
 class CheckBox;
 class RadioButton;
 
-namespace sfx2 { namespace sidebar {
-    class SidebarController;
-}}
-
 namespace sfx2 { namespace abstractbar {
 
+class IController;
 class FocusManager;
 class TabBarConfiguration;
 class TabItem;
@@ -72,7 +69,7 @@ public:
         const css::uno::Reference<css::frame::XFrame>& rxFrame,
         const ::std::function<void (const ::rtl::OUString&rsDeckId)>& rDeckActivationFunctor,
         const PopupMenuProvider& rPopupMenuProvider,
-        sfx2::sidebar::SidebarController* rParentAbstractbarController);
+        sfx2::abstractbar::IController* rParentController);
 
     virtual ~TabBar();
     virtual void dispose() override;
@@ -119,7 +116,7 @@ private:
 
     DECL_LINK_TYPED(OnToolboxClicked, Button*, void);
 
-    sidebar::SidebarController* pParentAbstractbarController;
+    abstractbar::IController* pParentAbstractbarController;
 
 };
 

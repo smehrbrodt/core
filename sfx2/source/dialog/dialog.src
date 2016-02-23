@@ -95,7 +95,11 @@ String SID_NAVIGATOR
 };
 String SID_SIDEBAR
 {
-    Text [ en-US ] = "Sidebar";
+    Text [ en-US ] = "ssidebar";
+};
+String SID_NOTEBOOKBAR
+{
+    Text [ en-US ] = "Notebookbar";
 };
 
 String STR_ERROR_WRONG_CONFIRM

@@ -25,7 +25,7 @@
 #include <sfx2/abstractbar/Theme.hxx>
 #include <sfx2/abstractbar/Tools.hxx>
 #include <sfx2/abstractbar/FocusManager.hxx>
-#include <sfx2/sidebar/SidebarController.hxx>
+#include <sfx2/abstractbar/IController.hxx>
 
 #include <sfx2/sfxresid.hxx>
 #include <sfx2/sidebar/Sidebar.hrc>
@@ -47,7 +47,7 @@ TabBar::TabBar(vcl::Window* pParentWindow,
                const Reference<frame::XFrame>& rxFrame,
                const std::function<void (const OUString&)>& rDeckActivationFunctor,
                const PopupMenuProvider& rPopupMenuProvider,
-               sfx2::sidebar::SidebarController* rParentAbstractbarController
+               sfx2::abstractbar::IController* rParentAbstractbarController
               )
     : Window(pParentWindow, WB_DIALOGCONTROL),
       mxFrame(rxFrame),

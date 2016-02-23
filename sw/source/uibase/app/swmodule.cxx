@@ -102,6 +102,7 @@
 #include <modcfg.hxx>
 #include <fontcfg.hxx>
 #include <sfx2/sidebar/SidebarChildWindow.hxx>
+#include <sfx2/notebookbar/NotebookbarChildWindow.hxx>
 #include <sfx2/evntconf.hxx>
 #include <swatrset.hxx>
 #include <idxmrk.hxx>
@@ -377,6 +378,7 @@ void SwDLL::RegisterControls()
     ::avmedia::MediaPlayer::RegisterChildWindow(false, pMod);
 
     ::sfx2::sidebar::SidebarChildWindow::RegisterChildWindow(false, pMod);
+    ::sfx2::notebookbar::NotebookbarChildWindow::RegisterChildWindow(false, pMod);
     SwJumpToSpecificPageControl::RegisterControl(SID_JUMP_TO_SPECIFIC_PAGE, pMod);
 }
 

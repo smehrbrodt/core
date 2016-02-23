@@ -273,6 +273,10 @@ $(eval $(call gb_Library_add_exception_objects,sfx,\
     sfx2/source/menu/mnumgr \
     sfx2/source/menu/thessubmenu \
     sfx2/source/menu/virtmenu \
+    sfx2/source/notebookbar/Notebookbar \
+    sfx2/source/notebookbar/NotebookbarChildWindow \
+    sfx2/source/notebookbar/NotebookbarController \
+    sfx2/source/notebookbar/NotebookbarDockingWindow \
     sfx2/source/notify/eventsupplier \
     sfx2/source/notify/globalevents \
     sfx2/source/notify/hintpost \

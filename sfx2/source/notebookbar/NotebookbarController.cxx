@@ -16,7 +16,7 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
-#include <sfx2/sidebar/SidebarController.hxx>
+#include <sfx2/notebookbar/NotebookbarController.hxx>
 #include <sfx2/abstractbar/IController.hxx>
 #include <sfx2/abstractbar/Deck.hxx>
 #include <sfx2/abstractbar/DeckTitleBar.hxx>
@@ -25,9 +25,9 @@
 #include <sfx2/abstractbar/SidebarResource.hxx>
 #include <sfx2/abstractbar/TabBar.hxx>
 #include <sfx2/abstractbar/Theme.hxx>
-#include <sfx2/sidebar/SidebarChildWindow.hxx>
+#include <sfx2/notebookbar/NotebookbarChildWindow.hxx>
 #include <sfx2/abstractbar/Tools.hxx>
-#include <sfx2/sidebar/SidebarDockingWindow.hxx>
+#include <sfx2/notebookbar/NotebookbarDockingWindow.hxx>
 #include <sfx2/abstractbar/Context.hxx>
 #include <sfx2/abstractbar/ContextList.hxx>
 
@@ -63,12 +63,12 @@ using namespace sfx2::abstractbar;
 namespace
 {
     const static char gsReadOnlyCommandName[] = ".uno:EditDoc";
-    const static char gsHideSidebarCommandName[] = ".uno:Sidebar";
+    const static char gsHideNotebookbarCommandName[] = ".uno:Notebookbar";
     const static sal_Int32 gnWidthCloseThreshold (70);
     const static sal_Int32 gnWidthOpenThreshold (40);
 }
 
-namespace sfx2 { namespace sidebar {
+namespace sfx2 { namespace notebookbar {
 
 namespace {
     enum MenuId
@@ -87,10 +87,10 @@ namespace {
     static const char gsDefaultDeckId[] = "PropertyDeck";
 }
 
-SidebarController::SidebarController (
-    SidebarDockingWindow* pParentWindow,
+NotebookbarController::NotebookbarController (
+    NotebookbarDockingWindow* pParentWindow,
     const css::uno::Reference<css::frame::XFrame>& rxFrame)
-    : SidebarControllerInterfaceBase(m_aMutex),
+    : NotebookbarControllerInterfaceBase(m_aMutex),
       mpCurrentDeck(),
       mpParentWindow(pParentWindow),
       mpTabBar(VclPtr<TabBar>::Create(
@@ -118,12 +118,12 @@ SidebarController::SidebarController (
       mnWidthOnSplitterButtonDown(0),
       mpResourceManager()
 {
-    // Decks and panel collections for this sidebar
+    // Decks and panel collections for this Notebookbar
     mpResourceManager = std::unique_ptr<ResourceManager>(new ResourceManager());
 
-    registerSidebarForFrame(this, mxFrame->getController());
+    registerNotebookbarForFrame(this, mxFrame->getController());
     // Listen for window events.
-    mpParentWindow->AddEventListener(LINK(this, SidebarController, WindowEventHandler));
+    mpParentWindow->AddEventListener(LINK(this, NotebookbarController, WindowEventHandler));
 
     // Listen for theme property changes.
     Theme::GetPropertySet()->addPropertyChangeListener(
@@ -140,29 +140,29 @@ SidebarController::SidebarController (
     SwitchToDeck(gsDefaultDeckId);
 }
 
-SidebarController::~SidebarController()
+NotebookbarController::~NotebookbarController()
 {
 }
 
-SidebarController* SidebarController::GetSidebarControllerForFrame (
+NotebookbarController* NotebookbarController::GetNotebookbarControllerForFrame (
     const css::uno::Reference<css::frame::XFrame>& rxFrame)
 {
     uno::Reference<frame::XController> const xController(rxFrame->getController());
     if (!xController.is()) // this may happen during dispose of Draw controller but perhaps it's a bug
     {
-        SAL_WARN("sfx.sidebar", "GetSidebarControllerForFrame: frame has no XController");
+        SAL_WARN("sfx.notebookbar", "GetNotebookbarControllerForFrame: frame has no XController");
         return nullptr;
     }
     uno::Reference<ui::XContextChangeEventListener> const xListener(
         framework::GetFirstListenerWith(xController,
             [] (uno::Reference<uno::XInterface> const& xRef)
-            { return nullptr != dynamic_cast<SidebarController*>(xRef.get()); }
+            { return nullptr != dynamic_cast<NotebookbarController*>(xRef.get()); }
         ));
 
-    return dynamic_cast<SidebarController*>(xListener.get());
+    return dynamic_cast<NotebookbarController*>(xListener.get());
 }
 
-void SidebarController::registerSidebarForFrame(SidebarController* pController, css::uno::Reference<css::frame::XController> xController)
+void NotebookbarController::registerNotebookbarForFrame(NotebookbarController* pController, css::uno::Reference<css::frame::XController> xController)
 {
     // Listen for context change events.
     css::uno::Reference<css::ui::XContextChangeEventMultiplexer> xMultiplexer (
@@ -174,7 +174,7 @@ void SidebarController::registerSidebarForFrame(SidebarController* pController, 
             xController);
 }
 
-void SidebarController::unregisterSidebarForFrame(SidebarController* pController, css::uno::Reference<css::frame::XController> xController)
+void NotebookbarController::unregisterNotebookbarForFrame(NotebookbarController* pController, css::uno::Reference<css::frame::XController> xController)
 {
     pController->disposeDecks();
     css::uno::Reference<css::ui::XContextChangeEventMultiplexer> xMultiplexer (
@@ -186,14 +186,14 @@ void SidebarController::unregisterSidebarForFrame(SidebarController* pController
             xController);
 }
 
-void SidebarController::disposeDecks()
+void NotebookbarController::disposeDecks()
 {
     mpCurrentDeck.clear();
     maFocusManager.Clear();
     mpResourceManager->disposeDecks();
 }
 
-void SAL_CALL SidebarController::disposing()
+void SAL_CALL NotebookbarController::disposing()
 {
     mpCloseIndicator.disposeAndClear();
 
@@ -232,19 +232,19 @@ void SAL_CALL SidebarController::disposing()
     if (!xController.is())
         xController = mxCurrentController;
 
-    unregisterSidebarForFrame(this, xController);
+    unregisterNotebookbarForFrame(this, xController);
 
     if (mxReadOnlyModeDispatch.is())
         mxReadOnlyModeDispatch->removeStatusListener(this, Tools::GetURL(gsReadOnlyCommandName));
     if (mpSplitWindow != nullptr)
     {
-        mpSplitWindow->RemoveEventListener(LINK(this, SidebarController, WindowEventHandler));
+        mpSplitWindow->RemoveEventListener(LINK(this, NotebookbarController, WindowEventHandler));
         mpSplitWindow = nullptr;
     }
 
     if (mpParentWindow != nullptr)
     {
-        mpParentWindow->RemoveEventListener(LINK(this, SidebarController, WindowEventHandler));
+        mpParentWindow->RemoveEventListener(LINK(this, NotebookbarController, WindowEventHandler));
         mpParentWindow = nullptr;
     }
 
@@ -257,7 +257,7 @@ void SAL_CALL SidebarController::disposing()
 
 }
 
-void SAL_CALL SidebarController::notifyContextChangeEvent (const css::ui::ContextChangeEventObject& rEvent)
+void SAL_CALL NotebookbarController::notifyContextChangeEvent (const css::ui::ContextChangeEventObject& rEvent)
     throw(css::uno::RuntimeException, std::exception)
 {
     // Update to the requested new context asynchronously to avoid
@@ -278,19 +278,19 @@ void SAL_CALL SidebarController::notifyContextChangeEvent (const css::ui::Contex
     }
 }
 
-void SAL_CALL SidebarController::disposing (const css::lang::EventObject& )
+void SAL_CALL NotebookbarController::disposing (const css::lang::EventObject& )
     throw(css::uno::RuntimeException, std::exception)
 {
     dispose();
 }
 
-void SAL_CALL SidebarController::propertyChange (const css::beans::PropertyChangeEvent& )
+void SAL_CALL NotebookbarController::propertyChange (const css::beans::PropertyChangeEvent& )
     throw(css::uno::RuntimeException, std::exception)
 {
     maPropertyChangeForwarder.RequestCall();
 }
 
-void SAL_CALL SidebarController::statusChanged (const css::frame::FeatureStateEvent& rEvent)
+void SAL_CALL NotebookbarController::statusChanged (const css::frame::FeatureStateEvent& rEvent)
     throw(css::uno::RuntimeException, std::exception)
 {
     bool bIsReadWrite (true);
@@ -311,7 +311,7 @@ void SAL_CALL SidebarController::statusChanged (const css::frame::FeatureStateEv
     }
 }
 
-void SAL_CALL SidebarController::requestLayout()
+void SAL_CALL NotebookbarController::requestLayout()
     throw(css::uno::RuntimeException, std::exception)
 {
     sal_Int32 nMinimalWidth = 0;
@@ -323,14 +323,14 @@ void SAL_CALL SidebarController::requestLayout()
     RestrictWidth(nMinimalWidth);
 }
 
-void SidebarController::BroadcastPropertyChange()
+void NotebookbarController::BroadcastPropertyChange()
 {
     DataChangedEvent aEvent (DataChangedEventType::USER);
     mpParentWindow->NotifyAllChildren(aEvent);
     mpParentWindow->Invalidate(InvalidateFlags::Children);
 }
 
-void SidebarController::NotifyResize()
+void NotebookbarController::NotifyResize()
 {
     if (!mpTabBar)
     {
@@ -408,7 +408,7 @@ void SidebarController::NotifyResize()
     RestrictWidth(nMinimalWidth);
 }
 
-void SidebarController::ProcessNewWidth (const sal_Int32 nNewWidth)
+void NotebookbarController::ProcessNewWidth (const sal_Int32 nNewWidth)
 {
     if ( ! mbIsDeckRequestedOpen)
         return;
@@ -432,7 +432,7 @@ void SidebarController::ProcessNewWidth (const sal_Int32 nNewWidth)
     }
 }
 
-void SidebarController::UpdateConfigurations()
+void NotebookbarController::UpdateConfigurations()
 {
 
     if (maCurrentContext != maRequestedContext
@@ -504,7 +504,7 @@ void SidebarController::UpdateConfigurations()
     }
 }
 
-void SidebarController::OpenThenSwitchToDeck (
+void NotebookbarController::OpenThenSwitchToDeck (
     const ::rtl::OUString& rsDeckId)
 {
     SfxSplitWindow* pSplitWindow = GetSplitWindow();
@@ -527,12 +527,12 @@ void SidebarController::OpenThenSwitchToDeck (
     mpTabBar->HighlightDeck(rsDeckId);
 }
 
-void SidebarController::SwitchToDefaultDeck()
+void NotebookbarController::SwitchToDefaultDeck()
 {
     SwitchToDeck(gsDefaultDeckId);
 }
 
-void SidebarController::SwitchToDeck (
+void NotebookbarController::SwitchToDeck (
     const ::rtl::OUString& rsDeckId)
 {
     if ( ! msCurrentDeckId.equals(rsDeckId)
@@ -547,7 +547,7 @@ void SidebarController::SwitchToDeck (
 }
 
 
-void SidebarController::CreateDeck(const ::rtl::OUString& rDeckId, bool bForceCreate)
+void NotebookbarController::CreateDeck(const ::rtl::OUString& rDeckId, bool bForceCreate)
 {
     DeckDescriptor* pDeckDescriptor = mpResourceManager->GetDeckDescriptor(rDeckId);
 
@@ -569,7 +569,7 @@ void SidebarController::CreateDeck(const ::rtl::OUString& rDeckId, bool bForceCr
     }
 }
 
-void SidebarController::CreatePanels(const ::rtl::OUString& rDeckId)
+void NotebookbarController::CreatePanels(const ::rtl::OUString& rDeckId)
 {
      DeckDescriptor* pDeckDescriptor = mpResourceManager->GetDeckDescriptor(rDeckId);
 
@@ -612,7 +612,7 @@ void SidebarController::CreatePanels(const ::rtl::OUString& rDeckId)
         }
         else
         {
-                VclPtr<Panel>  aPanel = CreatePanel(
+                VclPtr<Panel> aPanel = CreatePanel(
                                             rPanelContexDescriptor.msId,
                                             pDeck->GetPanelParentWindow(),
                                             rPanelContexDescriptor.mbIsInitiallyVisible,
@@ -642,7 +642,7 @@ void SidebarController::CreatePanels(const ::rtl::OUString& rDeckId)
     pDeck->ResetPanels(aNewPanels);
 }
 
-void SidebarController::SwitchToDeck (
+void NotebookbarController::SwitchToDeck (
     const DeckDescriptor& rDeckDescriptor,
     const Context& rContext)
 {
@@ -749,7 +749,7 @@ void SidebarController::SwitchToDeck (
     UpdateTitleBarIcons();
 }
 
-void SidebarController::notifyDeckTitle(const OUString& targetDeckId)
+void NotebookbarController::notifyDeckTitle(const OUString& targetDeckId)
 {
     if (msCurrentDeckId == targetDeckId)
     {
@@ -759,7 +759,7 @@ void SidebarController::notifyDeckTitle(const OUString& targetDeckId)
     }
 }
 
-VclPtr<Panel> SidebarController::CreatePanel (
+VclPtr<Panel> NotebookbarController::CreatePanel (
     const OUString& rsPanelId,
     vcl::Window* pParentWindow,
     const bool bIsInitiallyExpanded,
@@ -799,7 +799,7 @@ VclPtr<Panel> SidebarController::CreatePanel (
     return pPanel;
 }
 
-Reference<ui::XUIElement> SidebarController::CreateUIElement (
+Reference<ui::XUIElement> NotebookbarController::CreateUIElement (
     const Reference<awt::XWindowPeer>& rxWindow,
     const ::rtl::OUString& rsImplementationURL,
     const bool bWantsCanvas,
@@ -849,12 +849,12 @@ Reference<ui::XUIElement> SidebarController::CreateUIElement (
     }
     catch(const Exception& rException)
     {
-        SAL_WARN("sfx.sidebar", "Cannot create panel " << rsImplementationURL << ": " << rException.Message);
+        SAL_WARN("sfx.notebookbar", "Cannot create panel " << rsImplementationURL << ": " << rException.Message);
         return nullptr;
     }
 }
 
-IMPL_LINK_TYPED(SidebarController, WindowEventHandler, VclWindowEvent&, rEvent, void)
+IMPL_LINK_TYPED(NotebookbarController, WindowEventHandler, VclWindowEvent&, rEvent, void)
 {
     if (rEvent.GetWindow() == mpParentWindow)
     {
@@ -910,12 +910,12 @@ IMPL_LINK_TYPED(SidebarController, WindowEventHandler, VclWindowEvent&, rEvent, 
     }
 }
 
-void SidebarController::ShowPopupMenu (
+void NotebookbarController::ShowPopupMenu (
     const Rectangle& rButtonBox,
     const ::std::vector<TabBar::DeckMenuData>& rMenuData) const
 {
     std::shared_ptr<PopupMenu> pMenu = CreatePopupMenu(rMenuData);
-    pMenu->SetSelectHdl(LINK(const_cast<SidebarController*>(this), SidebarController, OnMenuItemSelected));
+    pMenu->SetSelectHdl(LINK(const_cast<NotebookbarController*>(this), NotebookbarController, OnMenuItemSelected));
 
     // pass toolbox button rect so the menu can stay open on button up
     Rectangle aBox (rButtonBox);
@@ -923,7 +923,7 @@ void SidebarController::ShowPopupMenu (
     pMenu->Execute(mpParentWindow, aBox, PopupMenuFlags::ExecuteDown);
 }
 
-std::shared_ptr<PopupMenu> SidebarController::CreatePopupMenu (
+std::shared_ptr<PopupMenu> NotebookbarController::CreatePopupMenu (
     const ::std::vector<TabBar::DeckMenuData>& rMenuData) const
 {
     // Create the top level popup menu.
@@ -987,11 +987,11 @@ std::shared_ptr<PopupMenu> SidebarController::CreatePopupMenu (
     return pMenu;
 }
 
-IMPL_LINK_TYPED(SidebarController, OnMenuItemSelected, Menu*, pMenu, bool)
+IMPL_LINK_TYPED(NotebookbarController, OnMenuItemSelected, Menu*, pMenu, bool)
 {
     if (pMenu == nullptr)
     {
-        OSL_ENSURE(pMenu!=nullptr, "sfx2::sidebar::SidebarController::OnMenuItemSelected: illegal menu!");
+        OSL_ENSURE(pMenu!=nullptr, "sfx2::sidebar::NotebookbarController::OnMenuItemSelected: illegal menu!");
         return false;
     }
 
@@ -1013,7 +1013,7 @@ IMPL_LINK_TYPED(SidebarController, OnMenuItemSelected, Menu*, pMenu, bool)
 
         case MID_HIDE_SIDEBAR:
         {
-            const util::URL aURL (Tools::GetURL(gsHideSidebarCommandName));
+            const util::URL aURL (Tools::GetURL(gsHideNotebookbarCommandName));
             Reference<frame::XDispatch> mxDispatch (Tools::GetDispatch(mxFrame, aURL));
             if (mxDispatch.is())
                     mxDispatch->dispatch(aURL, Sequence<beans::PropertyValue>());
@@ -1054,7 +1054,7 @@ IMPL_LINK_TYPED(SidebarController, OnMenuItemSelected, Menu*, pMenu, bool)
     return true;
 }
 
-void SidebarController::RequestCloseDeck()
+void NotebookbarController::RequestCloseDeck()
 {
     mbIsDeckRequestedOpen = false;
     UpdateDeckOpenState();
@@ -1063,18 +1063,18 @@ void SidebarController::RequestCloseDeck()
     mpTabBar->RemoveDeckHighlight();
 }
 
-void SidebarController::RequestOpenDeck()
+void NotebookbarController::RequestOpenDeck()
 {
     mbIsDeckRequestedOpen = true;
     UpdateDeckOpenState();
 }
 
-bool SidebarController::IsDeckVisible(const OUString& rsDeckId)
+bool NotebookbarController::IsDeckVisible(const OUString& rsDeckId)
 {
     return mbIsDeckOpen && mbIsDeckOpen.get() && msCurrentDeckId == rsDeckId;
 }
 
-void SidebarController::UpdateDeckOpenState()
+void NotebookbarController::UpdateDeckOpenState()
 {
     if ( ! mbIsDeckRequestedOpen)
         // No state requested.
@@ -1090,7 +1090,7 @@ void SidebarController::UpdateDeckOpenState()
         if (mbIsDeckRequestedOpen.get())
         {
             if (mnSavedSidebarWidth <= nTabBarDefaultWidth)
-                SetChildWindowWidth(SidebarChildWindow::GetDefaultWidth(mpParentWindow));
+                SetChildWindowWidth(NotebookbarChildWindow::GetDefaultWidth(mpParentWindow));
             else
                 SetChildWindowWidth(mnSavedSidebarWidth);
         }
@@ -1110,7 +1110,7 @@ void SidebarController::UpdateDeckOpenState()
     }
 }
 
-bool SidebarController::CanModifyChildWindowWidth()
+bool NotebookbarController::CanModifyChildWindowWidth()
 {
     SfxSplitWindow* pSplitWindow = GetSplitWindow();
     if (pSplitWindow == nullptr)
@@ -1127,7 +1127,7 @@ bool SidebarController::CanModifyChildWindowWidth()
         return false;
 }
 
-sal_Int32 SidebarController::SetChildWindowWidth (const sal_Int32 nNewWidth)
+sal_Int32 NotebookbarController::SetChildWindowWidth (const sal_Int32 nNewWidth)
 {
     SfxSplitWindow* pSplitWindow = GetSplitWindow();
     if (pSplitWindow == nullptr)
@@ -1151,7 +1151,7 @@ sal_Int32 SidebarController::SetChildWindowWidth (const sal_Int32 nNewWidth)
     return static_cast<sal_Int32>(nColumnWidth);
 }
 
-void SidebarController::RestrictWidth (sal_Int32 nWidth)
+void NotebookbarController::RestrictWidth (sal_Int32 nWidth)
 {
     SfxSplitWindow* pSplitWindow = GetSplitWindow();
     if (pSplitWindow != nullptr)
@@ -1165,7 +1165,7 @@ void SidebarController::RestrictWidth (sal_Int32 nWidth)
     }
 }
 
-SfxSplitWindow* SidebarController::GetSplitWindow()
+SfxSplitWindow* NotebookbarController::GetSplitWindow()
 {
     if (mpParentWindow != nullptr)
     {
@@ -1173,12 +1173,12 @@ SfxSplitWindow* SidebarController::GetSplitWindow()
         if (pSplitWindow != mpSplitWindow)
         {
             if (mpSplitWindow != nullptr)
-                mpSplitWindow->RemoveEventListener(LINK(this, SidebarController, WindowEventHandler));
+                mpSplitWindow->RemoveEventListener(LINK(this, NotebookbarController, WindowEventHandler));
 
             mpSplitWindow = pSplitWindow;
 
             if (mpSplitWindow != nullptr)
-                mpSplitWindow->AddEventListener(LINK(this, SidebarController, WindowEventHandler));
+                mpSplitWindow->AddEventListener(LINK(this, NotebookbarController, WindowEventHandler));
         }
         return mpSplitWindow;
     }
@@ -1186,7 +1186,7 @@ SfxSplitWindow* SidebarController::GetSplitWindow()
         return nullptr;
 }
 
-void SidebarController::UpdateCloseIndicator (const bool bCloseAfterDrag)
+void NotebookbarController::UpdateCloseIndicator (const bool bCloseAfterDrag)
 {
     if (mpParentWindow == nullptr)
         return;
@@ -1221,7 +1221,7 @@ void SidebarController::UpdateCloseIndicator (const bool bCloseAfterDrag)
     }
 }
 
-void SidebarController::UpdateTitleBarIcons()
+void NotebookbarController::UpdateTitleBarIcons()
 {
     if ( ! mpCurrentDeck)
         return;
@@ -1263,13 +1263,13 @@ void SidebarController::UpdateTitleBarIcons()
     }
 }
 
-void SidebarController::ShowPanel (const Panel& rPanel)
+void NotebookbarController::ShowPanel (const Panel& rPanel)
 {
     if (mpCurrentDeck)
         mpCurrentDeck->ShowPanel(rPanel);
 }
 
-ResourceManager::DeckContextDescriptorContainer SidebarController::GetMatchingDecks()
+ResourceManager::DeckContextDescriptorContainer NotebookbarController::GetMatchingDecks()
 {
     ResourceManager::DeckContextDescriptorContainer aDecks;
     mpResourceManager->GetMatchingDecks (aDecks,
@@ -1279,7 +1279,7 @@ ResourceManager::DeckContextDescriptorContainer SidebarController::GetMatchingDe
     return aDecks;
 }
 
-ResourceManager::PanelContextDescriptorContainer SidebarController::GetMatchingPanels(const ::rtl::OUString& rDeckId)
+ResourceManager::PanelContextDescriptorContainer NotebookbarController::GetMatchingPanels(const ::rtl::OUString& rDeckId)
 {
     ResourceManager::PanelContextDescriptorContainer aPanels;
 
@@ -1290,7 +1290,7 @@ ResourceManager::PanelContextDescriptorContainer SidebarController::GetMatchingP
     return aPanels;
 }
 
-void SidebarController::updateModel(css::uno::Reference<css::frame::XModel> xModel)
+void NotebookbarController::updateModel(css::uno::Reference<css::frame::XModel> xModel)
 {
     mpResourceManager->UpdateModel(xModel);
 }

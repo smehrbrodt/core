@@ -16,8 +16,8 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
-#ifndef INCLUDED_SFX2_SOURCE_SIDEBAR_SIDEBARCONTROLLER_HXX
-#define INCLUDED_SFX2_SOURCE_SIDEBAR_SIDEBARCONTROLLER_HXX
+#ifndef INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARCONTROLLER_HXX
+#define INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARCONTROLLER_HXX
 
 #include <sal/config.h>
 
@@ -50,7 +50,7 @@ namespace
         css::beans::XPropertyChangeListener,
         css::ui::XSidebar,
         css::frame::XStatusListener
-        > SidebarControllerInterfaceBase;
+        > NotebookbarControllerInterfaceBase;
 }
 
 class SfxSplitWindow;
@@ -64,35 +64,35 @@ namespace sfx2 { namespace abstractbar  {
     class TabBarConfiguration;
 }}
 
-namespace sfx2 { namespace sidebar {
+namespace sfx2 { namespace notebookbar {
 
-class SidebarDockingWindow;
+class NotebookbarDockingWindow;
 
-class SFX2_DLLPUBLIC SidebarController
+class SFX2_DLLPUBLIC NotebookbarController
     : private ::cppu::BaseMutex,
-      public SidebarControllerInterfaceBase,
-      public sfx2::abstractbar::IController
+      public sfx2::abstractbar::IController,
+      public NotebookbarControllerInterfaceBase
 {
 public:
-    SidebarController(
-        SidebarDockingWindow* pParentWindow,
+    NotebookbarController(
+        NotebookbarDockingWindow* pParentWindow,
         const css::uno::Reference<css::frame::XFrame>& rxFrame);
-    virtual ~SidebarController();
-    SidebarController(const SidebarController&) = delete;
-    SidebarController& operator=( const SidebarController& ) = delete;
+    virtual ~NotebookbarController();
+    NotebookbarController(const NotebookbarController&) = delete;
+    NotebookbarController& operator=( const NotebookbarController& ) = delete;
 
-    /** Return the SidebarController object that is associated with
+    /** Return the NotebookbarController object that is associated with
         the given XFrame.
         @return
-            When there is no SidebarController object for the given
+            When there is no NotebookbarController object for the given
             XFrame then <NULL/> is returned.
     */
-    static SidebarController* GetSidebarControllerForFrame (
+    static NotebookbarController* GetNotebookbarControllerForFrame (
         const css::uno::Reference<css::frame::XFrame>& rxFrame);
 
-    static void registerSidebarForFrame(SidebarController* pController, css::uno::Reference<css::frame::XController> xFrame);
+    static void registerNotebookbarForFrame(NotebookbarController* pController, css::uno::Reference<css::frame::XController> xFrame);
 
-    static void unregisterSidebarForFrame(SidebarController* pController, css::uno::Reference<css::frame::XController> xFrame);
+    static void unregisterNotebookbarForFrame(NotebookbarController* pController, css::uno::Reference<css::frame::XController> xFrame);
 
     // ui::XContextChangeEventListener
     virtual void SAL_CALL notifyContextChangeEvent (const css::ui::ContextChangeEventObject& rEvent)
@@ -171,7 +171,7 @@ public:
 private:
 
     VclPtr<abstractbar::Deck> mpCurrentDeck;
-    VclPtr<SidebarDockingWindow> mpParentWindow;
+    VclPtr<NotebookbarDockingWindow> mpParentWindow;
     VclPtr<abstractbar::TabBar> mpTabBar;
     css::uno::Reference<css::frame::XFrame> mxFrame;
     abstractbar::Context maCurrentContext;
@@ -278,7 +278,7 @@ private:
 
 };
 
-} } // end of namespace sfx2::sidebar
+} } // end of namespace sfx2::notebookbar
 
 #endif
 

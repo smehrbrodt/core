@@ -132,6 +132,7 @@ using ::com::sun::star::container::XIndexContainer;
 #include <sfx2/sfxuno.hxx>
 #include <sfx2/progress.hxx>
 #include <sfx2/sidebar/Sidebar.hxx>
+#include <sfx2/notebookbar/Notebookbar.hxx>
 #include "workwin.hxx"
 #include "helper.hxx"
 #include <sfx2/minfitem.hxx>
@@ -3116,6 +3117,18 @@ void SfxViewFrame::ChildWindowState( SfxItemSet& rState )
             if  ( !KnowsChildWindow( nSID ) )
             {
                 OSL_ENSURE( false, "SID_SIDEBAR state requested, but no task pane child window exists for this ID!" );
+                rState.DisableItem( nSID );
+            }
+            else
+            {
+                rState.Put( SfxBoolItem( nSID, HasChildWindow( nSID ) ) );
+            }
+        }
+        else if ( nSID == SID_NOTEBOOKBAR )
+        {
+            if  ( !KnowsChildWindow( nSID ) )
+            {
+                OSL_ENSURE( false, "SID_NOTEBOOKBAR state requested, but no task pane child window exists for this ID!" );
                 rState.DisableItem( nSID );
             }
             else

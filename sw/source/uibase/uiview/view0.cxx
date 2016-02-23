@@ -37,6 +37,7 @@
 #include <sfx2/viewfrm.hxx>
 #include <sfx2/bindings.hxx>
 #include <sfx2/sidebar/SidebarChildWindow.hxx>
+#include <sfx2/notebookbar/NotebookbarChildWindow.hxx>
 #include <uivwimp.hxx>
 #include <avmedia/mediaplayer.hxx>
 #include <swmodule.hxx>
@@ -98,6 +99,7 @@ void SwView::InitInterface_Impl()
     GetStaticInterface()->RegisterChildWindow(SID_NAVIGATOR, true);
 
     GetStaticInterface()->RegisterChildWindow(::sfx2::sidebar::SidebarChildWindow::GetChildWindowId());
+    GetStaticInterface()->RegisterChildWindow(::sfx2::notebookbar::NotebookbarChildWindow::GetChildWindowId());
     GetStaticInterface()->RegisterChildWindow(SfxInfoBarContainerChild::GetChildWindowId());
     GetStaticInterface()->RegisterChildWindow(SvxSearchDialogWrapper::GetChildWindowId());
     GetStaticInterface()->RegisterChildWindow(SwSpellDialogChildWindow::GetChildWindowId());
