@@ -36,14 +36,10 @@ NotebookbarChildWindow::NotebookbarChildWindow(vcl::Window* pParentWindow, sal_u
                                                SfxBindings* pBindings, SfxChildWinInfo* pInfo)
     : SfxChildWindow(pParentWindow, nId)
 {
-    SetWindow(VclPtr<NotebookbarDockingWindow>::Create(pBindings, *this, pParentWindow,
-                                                       WB_STDDOCKWIN | WB_OWNERDRAWDECORATION |
-                                                       WB_CLIPCHILDREN | WB_SIZEABLE |
-                                                       WB_3DLOOK | WB_ROLLABLE));
+    SetWindow(VclPtr<NotebookbarDockingWindow>::Create(pBindings, *this, pParentWindow, 0));
     SetAlignment(SfxChildAlignment::TOP);
 
     GetWindow()->SetHelpId(HID_NOTEBOOKBAR_WINDOW);
-    GetWindow()->SetOutputSizePixel(Size(GetDefaultWidth(GetWindow()), 450));
 
     SfxDockingWindow* pDockingParent = dynamic_cast<SfxDockingWindow*>(GetWindow());
     if (pDockingParent != nullptr)
@@ -51,20 +47,6 @@ NotebookbarChildWindow::NotebookbarChildWindow(vcl::Window* pParentWindow, sal_u
     SetHideNotDelete(true);
 
     GetWindow()->Show();
-}
-
-sal_Int32 NotebookbarChildWindow::GetDefaultWidth (vcl::Window* pWindow)
-{
-    if (pWindow != nullptr)
-    {
-        // Width of the paragraph panel.
-        const static sal_Int32 nMaxPropertyPageWidth (115);
-
-        return pWindow->LogicToPixel(Point(nMaxPropertyPageWidth,1), MAP_APPFONT).X()
-            + TabBar::GetDefaultWidth() * pWindow->GetDPIScaleFactor();
-    }
-    else
-        return 0;
 }
 
 } } // end of namespace sfx2::notebookbar

@@ -1087,14 +1087,7 @@ void NotebookbarController::UpdateDeckOpenState()
     if ( ! mbIsDeckOpen
         || mbIsDeckOpen.get() != mbIsDeckRequestedOpen.get())
     {
-        if (mbIsDeckRequestedOpen.get())
-        {
-            if (mnSavedSidebarWidth <= nTabBarDefaultWidth)
-                SetChildWindowWidth(NotebookbarChildWindow::GetDefaultWidth(mpParentWindow));
-            else
-                SetChildWindowWidth(mnSavedSidebarWidth);
-        }
-        else
+        if (!mbIsDeckRequestedOpen.get())
         {
             if ( ! mpParentWindow->IsFloatingMode())
                 mnSavedSidebarWidth = SetChildWindowWidth(nTabBarDefaultWidth);

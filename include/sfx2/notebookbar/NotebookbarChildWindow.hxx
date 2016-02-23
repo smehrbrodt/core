@@ -37,8 +37,6 @@ public:
                            SfxBindings* pBindings, SfxChildWinInfo* pInfo);
 
     SFX_DECL_CHILDWINDOW_WITHID(NotebookbarChildWindow);
-
-    static sal_Int32 GetDefaultWidth(vcl::Window* pWindow);
 };
 
 
