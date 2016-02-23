@@ -64,8 +64,6 @@ namespace
 {
     const static char gsReadOnlyCommandName[] = ".uno:EditDoc";
     const static char gsHideNotebookbarCommandName[] = ".uno:Notebookbar";
-    const static sal_Int32 gnWidthCloseThreshold (70);
-    const static sal_Int32 gnWidthOpenThreshold (40);
 }
 
 namespace sfx2 { namespace notebookbar {
@@ -344,20 +342,6 @@ void NotebookbarController::NotifyResize()
     if (mnSavedSidebarWidth <= 0)
         mnSavedSidebarWidth = nWidth;
 
-    bool bIsDeckVisible;
-    if (mbCanDeckBeOpened)
-    {
-        const bool bIsOpening (nWidth > mnWidthOnSplitterButtonDown);
-        if (bIsOpening)
-            bIsDeckVisible = nWidth >= nTabBarDefaultWidth + gnWidthOpenThreshold;
-        else
-            bIsDeckVisible = nWidth >= nTabBarDefaultWidth + gnWidthCloseThreshold;
-        mbIsDeckRequestedOpen = bIsDeckVisible;
-        UpdateCloseIndicator(!bIsDeckVisible);
-    }
-    else
-        bIsDeckVisible = false;
-
     if (mpCurrentDeck)
     {
         SfxSplitWindow* pSplitWindow = GetSplitWindow();
@@ -374,15 +358,9 @@ void NotebookbarController::NotifyResize()
             nTabX = nWidth-nTabBarDefaultWidth;
         }
 
-        // Place the deck first.
-        if (bIsDeckVisible)
-        {
-            mpCurrentDeck->setPosSizePixel(nDeckX, 0, nWidth - nTabBarDefaultWidth, nHeight);
-            mpCurrentDeck->Show();
-            mpCurrentDeck->RequestLayout();
-        }
-        else
-            mpCurrentDeck->Hide();
+        mpCurrentDeck->setPosSizePixel(nDeckX, 0, nWidth - nTabBarDefaultWidth, nHeight);
+        mpCurrentDeck->Show();
+        mpCurrentDeck->RequestLayout();
 
         // Now place the tab bar.
         mpTabBar->setPosSizePixel(nTabX, 0, nTabBarDefaultWidth, nHeight);
