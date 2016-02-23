@@ -17,7 +17,7 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <sfx2/sidebar/ResourceDefinitions.hrc>
+#include <sfx2/abstractbar/ResourceDefinitions.hrc>
 #include "PropertyPanel.hrc"
 #include "PagePropertyPanel.hrc"
 #include "helpid.h"

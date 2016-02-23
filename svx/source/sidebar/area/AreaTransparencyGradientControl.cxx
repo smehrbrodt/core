@@ -23,7 +23,7 @@
 #include <svx/dialogs.hrc>
 #include <svx/dialmgr.hxx>
 #include <svx/xflftrit.hxx>
-#include <sfx2/sidebar/ResourceDefinitions.hrc>
+#include <sfx2/abstractbar/ResourceDefinitions.hrc>
 #include <sfx2/bindings.hxx>
 #include <sfx2/dispatch.hxx>
 

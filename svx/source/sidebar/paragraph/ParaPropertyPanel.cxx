@@ -18,7 +18,7 @@
  */
 #include "ParaPropertyPanel.hxx"
 #include <svx/dialogs.hrc>
-#include <sfx2/sidebar/ResourceDefinitions.hrc>
+#include <sfx2/abstractbar/ResourceDefinitions.hrc>
 #include <sfx2/abstractbar/Tools.hxx>
 #include <sfx2/dispatch.hxx>
 #include <editeng/lrspitem.hxx>

@@ -22,7 +22,7 @@
 
 #include <svx/dialogs.hrc>
 #include <svx/dialmgr.hxx>
-#include <sfx2/sidebar/ResourceDefinitions.hrc>
+#include <sfx2/abstractbar/ResourceDefinitions.hrc>
 #include <comphelper/processfactory.hxx>
 #include <vcl/svapp.hxx>
 #include <vcl/settings.hxx>

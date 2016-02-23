@@ -18,7 +18,7 @@
  */
 #include "TextUnderlineControl.hxx"
 #include "TextPropertyPanel.hrc"
-#include <sfx2/sidebar/ResourceDefinitions.hrc>
+#include <sfx2/abstractbar/ResourceDefinitions.hrc>
 #include <svx/dialogs.hrc>
 #include <svx/dialmgr.hxx>
 #include <sfx2/dispatch.hxx>

@@ -9,7 +9,7 @@
 #include <ShadowPropertyPanel.hxx>
 #include <comphelper/string.hxx>
 #include <sfx2/abstractbar/ControlFactory.hxx>
-#include <sfx2/sidebar/ResourceDefinitions.hrc>
+#include <sfx2/abstractbar/ResourceDefinitions.hrc>
 #include <sfx2/abstractbar/Theme.hxx>
 #include <svx/dialogs.hrc>
 #include <svx/dialmgr.hxx>
