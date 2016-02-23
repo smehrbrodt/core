@@ -377,30 +377,6 @@ void NotebookbarController::NotifyResize()
     }
 }
 
-void NotebookbarController::ProcessNewWidth (const sal_Int32 nNewWidth)
-{
-    if ( ! mbIsDeckRequestedOpen)
-        return;
-
-    if (mbIsDeckRequestedOpen.get())
-     {
-        // Deck became large enough to be shown.  Show it.
-        mnSavedSidebarWidth = nNewWidth;
-        RequestOpenDeck();
-    }
-    else
-    {
-        // Deck became too small.  Close it completely.
-        // If window is wider than the tab bar then mark the deck as being visible, even when it its not.
-        // This is to trigger an adjustment of the width to the width of the tab bar.
-        mbIsDeckOpen = true;
-        RequestCloseDeck();
-
-        if (mnWidthOnSplitterButtonDown > TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor())
-            mnSavedSidebarWidth = mnWidthOnSplitterButtonDown;
-    }
-}
-
 void NotebookbarController::UpdateConfigurations()
 {
 
@@ -867,7 +843,6 @@ IMPL_LINK_TYPED(NotebookbarController, WindowEventHandler, VclWindowEvent&, rEve
 
             case VCLEVENT_WINDOW_MOUSEBUTTONUP:
             {
-                ProcessNewWidth(mpParentWindow->GetSizePixel().Width());
                 mnWidthOnSplitterButtonDown = 0;
                 break;
             }

@@ -262,7 +262,6 @@ private:
 
     void UpdateDeckOpenState();
     SfxSplitWindow* GetSplitWindow();
-    void ProcessNewWidth (const sal_Int32 nNewWidth);
     void UpdateCloseIndicator (const bool bIsIndicatorVisible);
 
     /** Typically called when a panel is focused via keyboard.
