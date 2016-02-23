@@ -25,6 +25,7 @@
 #include <sfx2/abstractbar/SidebarResource.hxx>
 #include <sfx2/abstractbar/TabBar.hxx>
 #include <sfx2/abstractbar/Theme.hxx>
+#include <sfx2/notebookbar/NotebookbarTabBar.hxx>
 #include <sfx2/notebookbar/NotebookbarChildWindow.hxx>
 #include <sfx2/abstractbar/Tools.hxx>
 #include <sfx2/notebookbar/NotebookbarDockingWindow.hxx>
@@ -88,7 +89,7 @@ NotebookbarController::NotebookbarController (
     : NotebookbarControllerInterfaceBase(m_aMutex),
       mpCurrentDeck(),
       mpParentWindow(pParentWindow),
-      mpTabBar(VclPtr<TabBar>::Create(
+      mpTabBar(VclPtr<NotebookbarTabBar>::Create(
               mpParentWindow,
               rxFrame,
               [this](const ::rtl::OUString& rsDeckId) { return this->OpenThenSwitchToDeck(rsDeckId); },
@@ -329,7 +330,8 @@ void NotebookbarController::NotifyResize()
     }
 
     vcl::Window* pParentWindow = mpTabBar->GetParent();
-    sal_Int32 nTabBarDefaultWidth = TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultWidth = NotebookbarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultHeight = NotebookbarTabBar::GetDefaultHeight() * mpTabBar->GetDPIScaleFactor();
 
     const sal_Int32 nWidth (pParentWindow->GetSizePixel().Width());
     const sal_Int32 nHeight (pParentWindow->GetSizePixel().Height());
@@ -341,26 +343,12 @@ void NotebookbarController::NotifyResize()
 
     if (mpCurrentDeck)
     {
-        SfxSplitWindow* pSplitWindow = GetSplitWindow();
-        WindowAlign eAlign = pSplitWindow ? pSplitWindow->GetAlign() : WindowAlign::Right;
-        long nDeckX, nTabX;
-        if (eAlign == WindowAlign::Left)     // attach the Sidebar towards the left-side of screen
-        {
-            nDeckX = nTabBarDefaultWidth;
-            nTabX = 0;
-        }
-        else   // attach the Sidebar towards the right-side of screen
-        {
-            nDeckX = 0;
-            nTabX = nWidth-nTabBarDefaultWidth;
-        }
-
-        mpCurrentDeck->setPosSizePixel(nDeckX, 0, nWidth - nTabBarDefaultWidth, nHeight);
+        mpCurrentDeck->setPosSizePixel(0, nTabBarDefaultHeight, nWidth, nHeight);
         mpCurrentDeck->Show();
         mpCurrentDeck->RequestLayout();
 
         // Now place the tab bar.
-        mpTabBar->setPosSizePixel(nTabX, 0, nTabBarDefaultWidth, nHeight);
+        mpTabBar->setPosSizePixel(0, 0, nWidth, nTabBarDefaultHeight);
         mpTabBar->Show();
 
     }
@@ -656,7 +644,7 @@ void NotebookbarController::SwitchToDeck (
 #endif
 
     SfxSplitWindow* pSplitWindow = GetSplitWindow();
-    sal_Int32 nTabBarDefaultWidth = TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultWidth = NotebookbarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
     WindowAlign eAlign = pSplitWindow ? pSplitWindow->GetAlign() : WindowAlign::Right;
     long nDeckX;
     if (eAlign == WindowAlign::Left)     // attach the Sidebar towards the left-side of screen
@@ -998,7 +986,7 @@ void NotebookbarController::UpdateDeckOpenState()
         // No state requested.
         return;
 
-    sal_Int32 nTabBarDefaultWidth = TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultWidth = NotebookbarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
 
     // Update (change) the open state when it either has not yet been initialized
     // or when its value differs from the requested state.
@@ -1106,7 +1094,7 @@ void NotebookbarController::UpdateCloseIndicator (const bool bCloseAfterDrag)
         const Size aImageSize (mpCloseIndicator->GetSizePixel());
         mpCloseIndicator->SetPosPixel(
             Point(
-                aWindowSize.Width() - TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() - aImageSize.Width(),
+                aWindowSize.Width() - NotebookbarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() - aImageSize.Width(),
                 (aWindowSize.Height() - aImageSize.Height())/2));
         mpCloseIndicator->Show();
     }

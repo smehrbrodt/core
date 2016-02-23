@@ -74,11 +74,9 @@ public:
     virtual ~TabBar();
     virtual void dispose() override;
 
-    virtual void Paint (vcl::RenderContext& /*rRenderContext*/, const Rectangle& rUpdateArea) override;
+    virtual void Paint (vcl::RenderContext& /*rRenderContext*/, const Rectangle& rUpdateArea) = 0;
     virtual void DataChanged (const DataChangedEvent& rDataChangedEvent) override;
     virtual bool Notify (NotifyEvent& rEvent) override;
-
-    static sal_Int32 GetDefaultWidth();
 
     void SetDecks (
         const ResourceManager::DeckContextDescriptorContainer& rDecks);
@@ -90,7 +88,8 @@ public:
 
     void UpdateFocusManager (FocusManager& rFocusManager);
 
-private:
+protected:
+    VclPtr<vcl::Window> mpParentWindow;
     css::uno::Reference<css::frame::XFrame> mxFrame;
     VclPtr<CheckBox> mpMenuButton;
     class Item
@@ -106,12 +105,11 @@ private:
     typedef ::std::vector<Item> ItemContainer;
     ItemContainer maItems;
     const ::std::function<void (const ::rtl::OUString&rsDeckId)> maDeckActivationFunctor;
-    sal_Int32 mnMenuSeparatorY;
     PopupMenuProvider maPopupMenuProvider;
 
     VclPtr<RadioButton> CreateTabItem (const DeckDescriptor& rDeckDescriptor);
     Image GetItemImage (const DeckDescriptor& rDeskDescriptor) const;
-    void Layout();
+    virtual void Layout() = 0;
     void UpdateButtonIcons();
 
     DECL_LINK_TYPED(OnToolboxClicked, Button*, void);

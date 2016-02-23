@@ -50,6 +50,7 @@ TabBar::TabBar(vcl::Window* pParentWindow,
                sfx2::abstractbar::IController* rParentAbstractbarController
               )
     : Window(pParentWindow, WB_DIALOGCONTROL),
+      mpParentWindow(pParentWindow),
       mxFrame(rxFrame),
       mpMenuButton(ControlFactory::CreateMenuButton(this)),
       maItems(),
@@ -63,7 +64,6 @@ TabBar::TabBar(vcl::Window* pParentWindow,
     mpMenuButton->SetModeImage(Theme::GetImage(Theme::Image_TabBarMenu));
     mpMenuButton->SetClickHdl(LINK(this, TabBar, OnToolboxClicked));
     mpMenuButton->SetQuickHelpText(SFX2_RESSTR(SFX_STR_SIDEBAR_SETTINGS));
-    Layout();
 
 #ifdef DEBUG
     SetText(OUString("TabBar"));
@@ -85,23 +85,6 @@ void TabBar::dispose()
     maItems.clear();
     mpMenuButton.disposeAndClear();
     vcl::Window::dispose();
-}
-
-void TabBar::Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea)
-{
-    Window::Paint(rRenderContext, rUpdateArea);
-
-    const sal_Int32 nHorizontalPadding(Theme::GetInteger(Theme::Int_TabMenuSeparatorPadding));
-    rRenderContext.SetLineColor(Theme::GetColor(Theme::Color_TabMenuSeparator));
-    rRenderContext.DrawLine(Point(nHorizontalPadding, mnMenuSeparatorY),
-                            Point(GetSizePixel().Width() - nHorizontalPadding, mnMenuSeparatorY));
-}
-
-sal_Int32 TabBar::GetDefaultWidth()
-{
-    return Theme::GetInteger(Theme::Int_TabItemWidth)
-        + Theme::GetInteger(Theme::Int_TabBarLeftPadding)
-        + Theme::GetInteger(Theme::Int_TabBarRightPadding);
 }
 
 void TabBar::SetDecks(const ResourceManager::DeckContextDescriptorContainer& rDecks)
@@ -174,53 +157,6 @@ void TabBar::UpdateButtonIcons()
         }
     }
 
-    Invalidate();
-}
-
-void TabBar::Layout()
-{
-    const SvBorder aPadding (
-        Theme::GetInteger(Theme::Int_TabBarLeftPadding),
-        Theme::GetInteger(Theme::Int_TabBarTopPadding),
-        Theme::GetInteger(Theme::Int_TabBarRightPadding),
-        Theme::GetInteger(Theme::Int_TabBarBottomPadding));
-    sal_Int32 nX (aPadding.Top());
-    sal_Int32 nY (aPadding.Left());
-    const Size aTabItemSize (
-        Theme::GetInteger(Theme::Int_TabItemWidth) * GetDPIScaleFactor(),
-        Theme::GetInteger(Theme::Int_TabItemHeight) * GetDPIScaleFactor());
-
-    // Place the menu button and the separator.
-    if (mpMenuButton != nullptr)
-    {
-        mpMenuButton->SetPosSizePixel(
-            Point(nX,nY),
-            aTabItemSize);
-        mpMenuButton->Show();
-        nY += mpMenuButton->GetSizePixel().Height() + 1 + Theme::GetInteger(Theme::Int_TabMenuPadding);
-        mnMenuSeparatorY = nY - Theme::GetInteger(Theme::Int_TabMenuPadding)/2 - 1;
-    }
-
-    // Place the deck selection buttons.
-    for(ItemContainer::const_iterator
-            iItem(maItems.begin()), iEnd(maItems.end());
-        iItem!=iEnd;
-        ++iItem)
-    {
-        Button& rButton (*iItem->mpButton);
-        rButton.Show( ! iItem->mbIsHidden);
-
-        if (iItem->mbIsHidden)
-            continue;
-
-        // Place and size the icon.
-        rButton.SetPosSizePixel(
-            Point(nX,nY),
-            aTabItemSize);
-        rButton.Show();
-
-        nY += rButton.GetSizePixel().Height() + 1 + aPadding.Bottom();
-    }
     Invalidate();
 }
 

@@ -17,7 +17,7 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <sfx2/abstractbar/TabBar.hxx>
+#include <sfx2/sidebar/SidebarTabBar.hxx>
 #include <sfx2/bindings.hxx>
 #include <sfx2/sidebar/SidebarChildWindow.hxx>
 #include <sfx2/sidebar/SidebarDockingWindow.hxx>
@@ -56,7 +56,7 @@ SidebarChildWindow::SidebarChildWindow (vcl::Window* pParentWindow, sal_uInt16 n
             // HACK: unfortunately I haven't found a clean solution to do
             // this, so do it this way:
             //
-            pDockingParent->SetSizePixel(Size(TabBar::GetDefaultWidth() * GetWindow()->GetDPIScaleFactor(),
+            pDockingParent->SetSizePixel(Size(SidebarTabBar::GetDefaultWidth() * GetWindow()->GetDPIScaleFactor(),
                         pDockingParent->GetSizePixel().Height()));
         }
         pDockingParent->Initialize(pInfo);
@@ -74,7 +74,7 @@ sal_Int32 SidebarChildWindow::GetDefaultWidth (vcl::Window* pWindow)
         const static sal_Int32 nMaxPropertyPageWidth (115);
 
         return pWindow->LogicToPixel(Point(nMaxPropertyPageWidth,1), MAP_APPFONT).X()
-            + TabBar::GetDefaultWidth() * pWindow->GetDPIScaleFactor();
+            + SidebarTabBar::GetDefaultWidth() * pWindow->GetDPIScaleFactor();
     }
     else
         return 0;

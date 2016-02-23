@@ -24,6 +24,7 @@
 #include <sfx2/abstractbar/PanelTitleBar.hxx>
 #include <sfx2/abstractbar/SidebarResource.hxx>
 #include <sfx2/abstractbar/TabBar.hxx>
+#include <sfx2/sidebar/SidebarTabBar.hxx>
 #include <sfx2/abstractbar/Theme.hxx>
 #include <sfx2/sidebar/SidebarChildWindow.hxx>
 #include <sfx2/abstractbar/Tools.hxx>
@@ -93,7 +94,7 @@ SidebarController::SidebarController (
     : SidebarControllerInterfaceBase(m_aMutex),
       mpCurrentDeck(),
       mpParentWindow(pParentWindow),
-      mpTabBar(VclPtr<TabBar>::Create(
+      mpTabBar(VclPtr<SidebarTabBar>::Create(
               mpParentWindow,
               rxFrame,
               [this](const ::rtl::OUString& rsDeckId) { return this->OpenThenSwitchToDeck(rsDeckId); },
@@ -339,7 +340,7 @@ void SidebarController::NotifyResize()
     }
 
     vcl::Window* pParentWindow = mpTabBar->GetParent();
-    sal_Int32 nTabBarDefaultWidth = TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultWidth = SidebarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
 
     const sal_Int32 nWidth (pParentWindow->GetSizePixel().Width());
     const sal_Int32 nHeight (pParentWindow->GetSizePixel().Height());
@@ -427,7 +428,7 @@ void SidebarController::ProcessNewWidth (const sal_Int32 nNewWidth)
         mbIsDeckOpen = true;
         RequestCloseDeck();
 
-        if (mnWidthOnSplitterButtonDown > TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor())
+        if (mnWidthOnSplitterButtonDown > SidebarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor())
             mnSavedSidebarWidth = mnWidthOnSplitterButtonDown;
     }
 }
@@ -714,7 +715,7 @@ void SidebarController::SwitchToDeck (
 #endif
 
     SfxSplitWindow* pSplitWindow = GetSplitWindow();
-    sal_Int32 nTabBarDefaultWidth = TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultWidth = SidebarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
     WindowAlign eAlign = pSplitWindow ? pSplitWindow->GetAlign() : WindowAlign::Right;
     long nDeckX;
     if (eAlign == WindowAlign::Left)     // attach the Sidebar towards the left-side of screen
@@ -1080,7 +1081,7 @@ void SidebarController::UpdateDeckOpenState()
         // No state requested.
         return;
 
-    sal_Int32 nTabBarDefaultWidth = TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
+    sal_Int32 nTabBarDefaultWidth = SidebarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor();
 
     // Update (change) the open state when it either has not yet been initialized
     // or when its value differs from the requested state.
@@ -1160,7 +1161,7 @@ void SidebarController::RestrictWidth (sal_Int32 nWidth)
         const sal_uInt16 nSetId (pSplitWindow->GetSet(nId));
         pSplitWindow->SetItemSizeRange(
             nSetId,
-            Range(TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() + nWidth,
+            Range(SidebarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() + nWidth,
                   gnMaximumSidebarWidth * mpTabBar->GetDPIScaleFactor()));
     }
 }
@@ -1209,7 +1210,7 @@ void SidebarController::UpdateCloseIndicator (const bool bCloseAfterDrag)
         const Size aImageSize (mpCloseIndicator->GetSizePixel());
         mpCloseIndicator->SetPosPixel(
             Point(
-                aWindowSize.Width() - TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() - aImageSize.Width(),
+                aWindowSize.Width() - SidebarTabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() - aImageSize.Width(),
                 (aWindowSize.Height() - aImageSize.Height())/2));
         mpCloseIndicator->Show();
     }

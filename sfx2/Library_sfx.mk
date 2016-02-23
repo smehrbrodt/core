@@ -277,6 +277,7 @@ $(eval $(call gb_Library_add_exception_objects,sfx,\
     sfx2/source/notebookbar/NotebookbarChildWindow \
     sfx2/source/notebookbar/NotebookbarController \
     sfx2/source/notebookbar/NotebookbarDockingWindow \
+    sfx2/source/notebookbar/NotebookbarTabBar \
     sfx2/source/notify/eventsupplier \
     sfx2/source/notify/globalevents \
     sfx2/source/notify/hintpost \
@@ -285,6 +286,7 @@ $(eval $(call gb_Library_add_exception_objects,sfx,\
     sfx2/source/sidebar/SidebarChildWindow \
     sfx2/source/sidebar/SidebarController \
     sfx2/source/sidebar/SidebarDockingWindow \
+    sfx2/source/sidebar/SidebarTabBar \
     sfx2/source/sidebar/UnoPanel \
     sfx2/source/sidebar/UnoPanels \
     sfx2/source/sidebar/UnoDeck \
