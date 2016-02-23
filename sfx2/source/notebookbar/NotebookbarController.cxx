@@ -71,10 +71,7 @@ namespace sfx2 { namespace notebookbar {
 namespace {
     enum MenuId
     {
-        MID_UNLOCK_TASK_PANEL = 1,
-        MID_LOCK_TASK_PANEL,
-        MID_HIDE_SIDEBAR,
-        MID_CUSTOMIZATION,
+        MID_CUSTOMIZATION = 1,
         MID_RESTORE_DEFAULT,
         MID_FIRST_PANEL,
         MID_FIRST_HIDE = 1000
@@ -913,13 +910,6 @@ std::shared_ptr<PopupMenu> NotebookbarController::CreatePopupMenu (
 
     pMenu->InsertSeparator();
 
-    // Add entry for docking or un-docking the tool panel.
-    if (mpParentWindow->IsFloatingMode())
-        pMenu->InsertItem(MID_LOCK_TASK_PANEL, SFX2_RESSTR(STR_SFX_DOCK));
-    else
-        pMenu->InsertItem(MID_UNLOCK_TASK_PANEL, SFX2_RESSTR(STR_SFX_UNDOCK));
-
-    pMenu->InsertItem(MID_HIDE_SIDEBAR, SFX2_RESSTR(STRING_HIDE_SIDEBAR));
     pCustomizationMenu->InsertSeparator();
     pCustomizationMenu->InsertItem(MID_RESTORE_DEFAULT, SFX2_RESSTR(STRING_RESTORE));
 
@@ -935,7 +925,7 @@ IMPL_LINK_TYPED(NotebookbarController, OnMenuItemSelected, Menu*, pMenu, bool)
 {
     if (pMenu == nullptr)
     {
-        OSL_ENSURE(pMenu!=nullptr, "sfx2::sidebar::NotebookbarController::OnMenuItemSelected: illegal menu!");
+        OSL_ENSURE(pMenu!=nullptr, "sfx2::notebookbar::NotebookbarController::OnMenuItemSelected: illegal menu!");
         return false;
     }
 
@@ -943,26 +933,10 @@ IMPL_LINK_TYPED(NotebookbarController, OnMenuItemSelected, Menu*, pMenu, bool)
     const sal_Int32 nIndex (pMenu->GetCurItemId());
     switch (nIndex)
     {
-        case MID_UNLOCK_TASK_PANEL:
-            mpParentWindow->SetFloatingMode(true);
-            break;
-
-        case MID_LOCK_TASK_PANEL:
-            mpParentWindow->SetFloatingMode(false);
-            break;
 
         case MID_RESTORE_DEFAULT:
             mpTabBar->RestoreHideFlags();
             break;
-
-        case MID_HIDE_SIDEBAR:
-        {
-            const util::URL aURL (Tools::GetURL(gsHideNotebookbarCommandName));
-            Reference<frame::XDispatch> mxDispatch (Tools::GetDispatch(mxFrame, aURL));
-            if (mxDispatch.is())
-                    mxDispatch->dispatch(aURL, Sequence<beans::PropertyValue>());
-            break;
-        }
         default:
         {
             try
