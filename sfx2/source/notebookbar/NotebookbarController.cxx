@@ -314,13 +314,8 @@ void SAL_CALL NotebookbarController::statusChanged (const css::frame::FeatureSta
 void SAL_CALL NotebookbarController::requestLayout()
     throw(css::uno::RuntimeException, std::exception)
 {
-    sal_Int32 nMinimalWidth = 0;
     if (mpCurrentDeck)
-    {
         mpCurrentDeck->RequestLayout();
-        nMinimalWidth = mpCurrentDeck->GetMinimalWidth();
-    }
-    RestrictWidth(nMinimalWidth);
 }
 
 void NotebookbarController::BroadcastPropertyChange()
@@ -396,16 +391,12 @@ void NotebookbarController::NotifyResize()
     }
 
     // Determine if the closer of the deck can be shown.
-    sal_Int32 nMinimalWidth = 0;
     if (mpCurrentDeck)
     {
         DeckTitleBar* pTitleBar = mpCurrentDeck->GetTitleBar();
         if (pTitleBar != nullptr && pTitleBar->IsVisible())
             pTitleBar->SetCloserVisible(CanModifyChildWindowWidth());
-        nMinimalWidth = mpCurrentDeck->GetMinimalWidth();
     }
-
-    RestrictWidth(nMinimalWidth);
 }
 
 void NotebookbarController::ProcessNewWidth (const sal_Int32 nNewWidth)
@@ -1142,20 +1133,6 @@ sal_Int32 NotebookbarController::SetChildWindowWidth (const sal_Int32 nNewWidth)
     static_cast<SplitWindow*>(pSplitWindow)->Split();
 
     return static_cast<sal_Int32>(nColumnWidth);
-}
-
-void NotebookbarController::RestrictWidth (sal_Int32 nWidth)
-{
-    SfxSplitWindow* pSplitWindow = GetSplitWindow();
-    if (pSplitWindow != nullptr)
-    {
-        const sal_uInt16 nId (pSplitWindow->GetItemId(mpParentWindow.get()));
-        const sal_uInt16 nSetId (pSplitWindow->GetSet(nId));
-        pSplitWindow->SetItemSizeRange(
-            nSetId,
-            Range(TabBar::GetDefaultWidth() * mpTabBar->GetDPIScaleFactor() + nWidth,
-                  gnMaximumSidebarWidth * mpTabBar->GetDPIScaleFactor()));
-    }
 }
 
 SfxSplitWindow* NotebookbarController::GetSplitWindow()

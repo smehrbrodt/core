@@ -261,7 +261,6 @@ private:
     void UpdateTitleBarIcons();
 
     void UpdateDeckOpenState();
-    void RestrictWidth (sal_Int32 nWidth);
     SfxSplitWindow* GetSplitWindow();
     void ProcessNewWidth (const sal_Int32 nNewWidth);
     void UpdateCloseIndicator (const bool bIsIndicatorVisible);
