@@ -312,26 +312,84 @@ void AquaSalGraphics::GetFontMetric( ImplFontMetricDataPtr& rxFontMetric, int /*
     mpTextStyle->GetFontMetric( rxFontMetric );
 }
 
-static bool AddTempDevFont(const OUString& rFontFileURL)
+static bool AddLocalFont(const OUString& rFontFileURL)
 {
     OUString aUSytemPath;
     OSL_VERIFY( !osl::FileBase::getSystemPathFromFileURL( rFontFileURL, aUSytemPath ) );
     OString aCFileName = OUStringToOString( aUSytemPath, RTL_TEXTENCODING_UTF8 );
 
-    CFStringRef rFontPath = CFStringCreateWithCString(nullptr, aCFileName.getStr(), kCFStringEncodingUTF8);
-    CFURLRef rFontURL = CFURLCreateWithFileSystemPath(nullptr, rFontPath, kCFURLPOSIXPathStyle, true);
+    CFStringRef rFontPath = CFStringCreateWithCString( nullptr, aCFileName.getStr(), kCFStringEncodingUTF8 );
+    rFontPath = (CFStringRef)[ [ (NSString*)rFontPath stringByStandardizingPath ] stringByResolvingSymlinksInPath ];
+    CFURLRef rFontURL = CFURLCreateWithString( kCFAllocatorDefault, rFontPath, nullptr );
+
+    bool success = false;
+
+#if MACOSX_SDK_VERSION >= 1060
 
     CFErrorRef error;
-    bool success = CTFontManagerRegisterFontsForURL(rFontURL, kCTFontManagerScopeProcess, &error);
-    if (!success)
+    success = CTFontManagerRegisterFontsForURL( rFontURL, kCTFontManagerScopeProcess, &error );
+    if ( !success )
     {
-        CFRelease(error);
+        CFRelease( error );
     }
+
+#else /* CTFontManagerRegisterFontsForURL is not available on OS X before 10.6 */
+
+    CFStringRef rFontFilesystemPath = CFURLCopyFileSystemPath( rFontURL, kCFURLPOSIXPathStyle );
+
+    FSRef aFontFSRef;
+    Boolean bIsDirectory = false;
+    OSStatus eStatus = FSPathMakeRef( reinterpret_cast<const UInt8*>( [ (NSString*)rFontFilesystemPath UTF8String ] ),
+                                      &aFontFSRef, &bIsDirectory );
+    if ( eStatus != noErr )
+    {
+        return false;
+    }
+
+    ATSFontContainerRef aATSFontContainer;
+    eStatus = ATSFontActivateFromFileReference( &aFontFSRef,
+                                                kATSFontContextLocal,
+                                                kATSFontFormatUnspecified,
+                                                nullptr,
+                                                kATSOptionFlagsDefault,
+                                                &aATSFontContainer );
+    if ( eStatus == noErr )
+    {
+        success = true;
+        //fprintf( stdout, "AddLocalFont: \"%s\" succeeded\n", [ (NSString*)rFontFilesystemPath UTF8String ] );
+        SAL_INFO( "vcl.cg", "AddLocalFont: \"" << [ (NSString*)rFontFilesystemPath UTF8String ] << "\" succeeded" );
+    }
+
+  #if 0
+    ///CGDataProviderRef dataProvider = CGDataProviderCreateWithURL( rFontURL );
+    NSData * inData = [ [ NSData alloc ] initWithContentsOfFile: (NSString*)rFontPath ];
+    CGDataProviderRef dataProvider = CGDataProviderCreateWithCFData( (CFDataRef)inData ) ;
+    if ( dataProvider )
+    {
+        CGFontRef graphicsFont = CGFontCreateWithDataProvider( dataProvider );
+        if ( graphicsFont )
+        {
+            CTFontRef coreTextFont = CTFontCreateWithGraphicsFont( graphicsFont, /*fontSize*/ 0,
+                                                                   nullptr /*matrix*/, nullptr /*attributes*/ );
+            if ( coreTextFont )
+            {
+                SAL_INFO( "vcl.cg", "AddLocalFont: \"" << [ (NSString*)rFontPath UTF8String ] << "\" succeeded" );
+                success = true;
+                CFRelease( coreTextFont );
+            }
+            CGFontRelease( graphicsFont );
+        }
+        CGDataProviderRelease( dataProvider );
+    }
+    [ inData release ];
+  #endif
+
+#endif
 
     return success;
 }
 
-static void AddTempFontDir( const OUString &rFontDirUrl )
+static void AddLocalFontsFromDir( const OUString &rFontDirUrl )
 {
     osl::Directory aFontDir( rFontDirUrl );
     osl::FileBase::RC rcOSL = aFontDir.open();
@@ -345,13 +403,16 @@ static void AddTempFontDir( const OUString &rFontDirUrl )
             rcOSL = aDirItem.getFileStatus( aFileStatus );
             if ( rcOSL == osl::FileBase::E_None )
             {
-                AddTempDevFont(aFileStatus.getFileURL());
+                OUString fileURL = aFileStatus.getFileURL();
+                bool bFontOk = AddLocalFont( fileURL );
+                if ( ! bFontOk )
+                    SAL_WARN( "vcl.cg", "AddLocalFontsFromDir: no success for AddLocalFont( \"" << fileURL << "\" )" );
             }
         }
     }
 }
 
-static void AddLocalTempFontDirs()
+static void AddLocalFonts()
 {
     static bool bFirst = true;
     if( !bFirst )
@@ -363,14 +424,14 @@ static void AddLocalTempFontDirs()
 
     OUString aBrandStr( "$BRAND_BASE_DIR" );
     rtl_bootstrap_expandMacros( &aBrandStr.pData );
-    AddTempFontDir( aBrandStr + "/" LIBO_SHARE_FOLDER "/fonts/truetype/" );
+    AddLocalFontsFromDir( aBrandStr + "/" LIBO_SHARE_FOLDER "/fonts/truetype/" );
 }
 
 void AquaSalGraphics::GetDevFontList( PhysicalFontCollection* pFontCollection )
 {
     DBG_ASSERT( pFontCollection, "AquaSalGraphics::GetDevFontList(NULL) !");
 
-    AddLocalTempFontDirs();
+    AddLocalFonts();
 
     // The idea is to cache the list of system fonts once it has been generated.
     // SalData seems to be a good place for this caching. However we have to
@@ -398,7 +459,7 @@ void AquaSalGraphics::ClearDevFontCache()
 bool AquaSalGraphics::AddTempDevFont( PhysicalFontCollection*,
     const OUString& rFontFileURL, const OUString& /*rFontName*/ )
 {
-    return ::AddTempDevFont(rFontFileURL);
+    return ::AddLocalFont(rFontFileURL);
 }
 
 bool AquaSalGraphics::GetGlyphOutline( sal_GlyphId aGlyphId, basegfx::B2DPolyPolygon& rPolyPoly )
