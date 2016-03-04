@@ -17,7 +17,7 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <sfx2/abstractbar/DeckLayouter.hxx>
+#include <sfx2/sidebar/SidebarDeckLayouter.hxx>
 #include <sfx2/abstractbar/Theme.hxx>
 #include <sfx2/abstractbar/Panel.hxx>
 #include <sfx2/abstractbar/PanelTitleBar.hxx>
@@ -28,8 +28,9 @@
 
 using namespace css;
 using namespace css::uno;
+using namespace sfx2::abstractbar;
 
-namespace sfx2 { namespace abstractbar {
+namespace sfx2 { namespace sidebar {
 
 namespace {
     static const sal_Int32 MinimalPanelHeight (25);
@@ -100,11 +101,11 @@ namespace {
         iterator_name!=iEnd;                                            \
         ++iterator_name)
 
-void DeckLayouter::LayoutDeck (
+void SidebarDeckLayouter::LayoutDeck (
     const Rectangle& rContentArea,
     sal_Int32& rMinimalWidth,
     SharedPanelContainer& rPanels,
-    vcl::Window& rDeckTitleBar,
+    sfx2::abstractbar::DeckTitleBar& rDeckTitleBar,
     vcl::Window& rScrollClipWindow,
     vcl::Window& rScrollContainer,
     vcl::Window& rFiller,

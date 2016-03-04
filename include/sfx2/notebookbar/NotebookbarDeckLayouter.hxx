@@ -16,10 +16,11 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
-#ifndef INCLUDED_SFX2_SOURCE_ABSTRACTBAR_DECKLAYOUTER_HXX
-#define INCLUDED_SFX2_SOURCE_ABSTRACTBAR_DECKLAYOUTER_HXX
+#ifndef INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARDECKLAYOUTER_HXX
+#define INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARDECKLAYOUTER_HXX
 
 #include <sfx2/abstractbar/Panel.hxx>
+#include <sfx2/abstractbar/DeckTitleBar.hxx>
 
 #include <tools/gen.hxx>
 
@@ -29,28 +30,29 @@
 
 class ScrollBar;
 namespace vcl { class Window; }
-
 namespace sfx2 { namespace abstractbar {
+    class Panel;
+}}
 
-class Panel;
+namespace sfx2 { namespace notebookbar {
 
 /** Helper for layouting the direct and indirect children of a
     deck like title bars, panels, and scroll bars.
 */
-namespace DeckLayouter
+namespace NotebookbarDeckLayouter
 {
     void LayoutDeck (
         const Rectangle& rContentArea,
         sal_Int32& rMinimalWidth,
-        SharedPanelContainer& rPanels,
-        vcl::Window& pDeckTitleBar,
+        sfx2::abstractbar::SharedPanelContainer& rPanels,
+        sfx2::abstractbar::DeckTitleBar& pDeckTitleBar,
         vcl::Window& pScrollClipWindow,
         vcl::Window& pScrollContainer,
         vcl::Window& pFiller,
         ScrollBar& pVerticalScrollBar);
 }
 
-} } // end of namespace sfx2::abstractbar
+} } // end of namespace sfx2::notebookbar
 
 #endif
 

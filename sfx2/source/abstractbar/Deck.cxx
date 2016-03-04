@@ -19,7 +19,6 @@
 
 #include <sfx2/abstractbar/Deck.hxx>
 #include <sfx2/abstractbar/DeckDescriptor.hxx>
-#include <sfx2/abstractbar/DeckLayouter.hxx>
 #include <sfx2/abstractbar/DrawHelper.hxx>
 #include <sfx2/abstractbar/DeckTitleBar.hxx>
 #include <sfx2/abstractbar/PanelTitleBar.hxx>
@@ -113,33 +112,6 @@ void Deck::ApplySettings(vcl::RenderContext& rRenderContext)
     rRenderContext.SetBackground(Wallpaper());
 }
 
-void Deck::Paint(vcl::RenderContext& rRenderContext, const Rectangle& /*rUpdateArea*/)
-{
-    const Size aWindowSize (GetSizePixel());
-    const SvBorder aPadding(Theme::GetInteger(Theme::Int_DeckLeftPadding),
-                            Theme::GetInteger(Theme::Int_DeckTopPadding),
-                            Theme::GetInteger(Theme::Int_DeckRightPadding),
-                            Theme::GetInteger(Theme::Int_DeckBottomPadding));
-
-    // Paint deck background outside the border.
-    Rectangle aBox(0, 0, aWindowSize.Width() - 1, aWindowSize.Height() - 1);
-    DrawHelper::DrawBorder(rRenderContext, aBox, aPadding,
-                           Theme::GetPaint(Theme::Paint_DeckBackground),
-                           Theme::GetPaint(Theme::Paint_DeckBackground));
-
-    // Paint the border.
-    const int nBorderSize(Theme::GetInteger(Theme::Int_DeckBorderSize));
-    aBox.Left() += aPadding.Left();
-    aBox.Top() += aPadding.Top();
-    aBox.Right() -= aPadding.Right();
-    aBox.Bottom() -= aPadding.Bottom();
-    const sfx2::abstractbar::Paint& rHorizontalBorderPaint(Theme::GetPaint(Theme::Paint_HorizontalBorder));
-    DrawHelper::DrawBorder(rRenderContext, aBox,
-                           SvBorder(nBorderSize, nBorderSize, nBorderSize, nBorderSize),
-                           rHorizontalBorderPaint,
-                           Theme::GetPaint(Theme::Paint_VerticalBorder));
-}
-
 void Deck::DataChanged (const DataChangedEvent& rEvent)
 {
     (void)rEvent;
@@ -206,15 +178,6 @@ void Deck::ResetPanels(const SharedPanelContainer& rPanels)
     maPanels = rPanels;
 
     RequestLayout();
-}
-
-void Deck::RequestLayout()
-{
-    mnMinimalWidth = 0;
-
-    DeckLayouter::LayoutDeck(GetContentArea(), mnMinimalWidth, maPanels,
-                             *GetTitleBar(), *mpScrollClipWindow, *mpScrollContainer,
-                             *mpFiller, *mpVerticalScrollBar);
 }
 
 vcl::Window* Deck::GetPanelParentWindow()
@@ -323,9 +286,10 @@ void Deck::ScrollContainerWindow::Paint(vcl::RenderContext& rRenderContext, cons
     for (std::vector<sal_Int32>::const_iterator iY(maSeparators.begin()); iY != maSeparators.end(); ++iY)
     {
         DrawHelper::DrawHorizontalLine(rRenderContext, nLeft, nRight, *iY,
-                                       nSeparatorHeight, rHorizontalBorderPaint);
+                                    nSeparatorHeight, rHorizontalBorderPaint);
     }
 }
+
 
 void Deck::ScrollContainerWindow::SetSeparators (const ::std::vector<sal_Int32>& rSeparators)
 {

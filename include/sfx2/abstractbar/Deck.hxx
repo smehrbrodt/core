@@ -53,7 +53,7 @@ public:
 
     Panel* GetPanel(OUString const & panelId);
 
-    void RequestLayout();
+    virtual void RequestLayout() = 0;
     vcl::Window* GetPanelParentWindow();
 
     /** Try to make the panel completely visible.
@@ -63,7 +63,7 @@ public:
     void ShowPanel (const Panel& rPanel);
 
     virtual void ApplySettings(vcl::RenderContext& rRenderContext) override;
-    virtual void Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea) override;
+    virtual void Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea) = 0;
     virtual void DataChanged (const DataChangedEvent& rEvent) override;
     virtual bool Notify(NotifyEvent& rEvent) override;
 
@@ -81,7 +81,7 @@ public:
         std::vector<sal_Int32> maSeparators;
     };
 
-private:
+protected:
     const OUString msId;
     sal_Int32 mnMinimalWidth;
     SharedPanelContainer maPanels;

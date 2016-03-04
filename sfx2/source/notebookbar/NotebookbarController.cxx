@@ -18,7 +18,6 @@
  */
 #include <sfx2/notebookbar/NotebookbarController.hxx>
 #include <sfx2/abstractbar/IController.hxx>
-#include <sfx2/abstractbar/Deck.hxx>
 #include <sfx2/abstractbar/DeckTitleBar.hxx>
 #include <sfx2/abstractbar/Panel.hxx>
 #include <sfx2/abstractbar/PanelTitleBar.hxx>
@@ -29,6 +28,7 @@
 #include <sfx2/notebookbar/NotebookbarChildWindow.hxx>
 #include <sfx2/abstractbar/Tools.hxx>
 #include <sfx2/notebookbar/NotebookbarDockingWindow.hxx>
+#include <sfx2/notebookbar/NotebookbarDeck.hxx>
 #include <sfx2/abstractbar/Context.hxx>
 #include <sfx2/abstractbar/ContextList.hxx>
 
@@ -489,7 +489,7 @@ void NotebookbarController::CreateDeck(const ::rtl::OUString& rDeckId, bool bFor
             if (aDeck.get()!=nullptr)
                 aDeck.disposeAndClear();
 
-            aDeck = VclPtr<Deck>::Create(
+            aDeck = VclPtr<NotebookbarDeck>::Create(
                             *pDeckDescriptor,
                             mpParentWindow,
                             [this]() { return this->RequestCloseDeck(); });

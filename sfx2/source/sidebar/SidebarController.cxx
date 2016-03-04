@@ -18,7 +18,6 @@
  */
 #include <sfx2/sidebar/SidebarController.hxx>
 #include <sfx2/abstractbar/IController.hxx>
-#include <sfx2/abstractbar/Deck.hxx>
 #include <sfx2/abstractbar/DeckTitleBar.hxx>
 #include <sfx2/abstractbar/Panel.hxx>
 #include <sfx2/abstractbar/PanelTitleBar.hxx>
@@ -29,6 +28,7 @@
 #include <sfx2/sidebar/SidebarChildWindow.hxx>
 #include <sfx2/abstractbar/Tools.hxx>
 #include <sfx2/sidebar/SidebarDockingWindow.hxx>
+#include <sfx2/sidebar/SidebarDeck.hxx>
 #include <sfx2/abstractbar/Context.hxx>
 #include <sfx2/abstractbar/ContextList.hxx>
 
@@ -560,7 +560,7 @@ void SidebarController::CreateDeck(const ::rtl::OUString& rDeckId, bool bForceCr
             if (aDeck.get()!=nullptr)
                 aDeck.disposeAndClear();
 
-            aDeck = VclPtr<Deck>::Create(
+            aDeck = VclPtr<SidebarDeck>::Create(
                             *pDeckDescriptor,
                             mpParentWindow,
                             [this]() { return this->RequestCloseDeck(); });
