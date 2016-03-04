@@ -37,7 +37,7 @@ namespace sfx2 { namespace abstractbar {
 namespace sfx2 { namespace notebookbar {
 
 /** Helper for layouting the direct and indirect children of a
-    deck like title bars, panels, and scroll bars.
+    deck like panels, and scroll bars.
 */
 namespace NotebookbarDeckLayouter
 {
@@ -45,11 +45,9 @@ namespace NotebookbarDeckLayouter
         const Rectangle& rContentArea,
         sal_Int32& rMinimalWidth,
         sfx2::abstractbar::SharedPanelContainer& rPanels,
-        sfx2::abstractbar::DeckTitleBar& pDeckTitleBar,
         vcl::Window& pScrollClipWindow,
         vcl::Window& pScrollContainer,
-        vcl::Window& pFiller,
-        ScrollBar& pVerticalScrollBar);
+        vcl::Window& pFiller);
 }
 
 } } // end of namespace sfx2::notebookbar

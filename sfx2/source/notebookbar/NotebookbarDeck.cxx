@@ -71,8 +71,7 @@ void NotebookbarDeck::RequestLayout()
     fprintf(stderr, "NotebookbarDeck::requestLayout\n");
     mnMinimalWidth = 0;
     NotebookbarDeckLayouter::LayoutDeck(GetContentArea(), mnMinimalWidth, maPanels,
-                             *GetTitleBar(), *mpScrollClipWindow, *mpScrollContainer,
-                             *mpFiller, *mpVerticalScrollBar);
+                                        *mpScrollClipWindow, *mpScrollContainer, *mpFiller);
 }
 
 } } // end of namespace sfx2::notebookbar
