@@ -68,7 +68,6 @@ public:
         vcl::Window* pParentWindow,
         const css::uno::Reference<css::frame::XFrame>& rxFrame,
         const ::std::function<void (const ::rtl::OUString&rsDeckId)>& rDeckActivationFunctor,
-        const PopupMenuProvider& rPopupMenuProvider,
         sfx2::abstractbar::IController* rParentController);
 
     virtual ~TabBar();
@@ -86,12 +85,11 @@ public:
     void ToggleHideFlag (const sal_Int32 nIndex);
     void RestoreHideFlags();
 
-    void UpdateFocusManager (FocusManager& rFocusManager);
+    virtual void UpdateFocusManager (FocusManager& rFocusManager) = 0;
 
 protected:
     VclPtr<vcl::Window> mpParentWindow;
     css::uno::Reference<css::frame::XFrame> mxFrame;
-    VclPtr<CheckBox> mpMenuButton;
     class Item
     {
     public:
@@ -105,13 +103,10 @@ protected:
     typedef ::std::vector<Item> ItemContainer;
     ItemContainer maItems;
     const ::std::function<void (const ::rtl::OUString&rsDeckId)> maDeckActivationFunctor;
-    PopupMenuProvider maPopupMenuProvider;
 
     virtual VclPtr<RadioButton> CreateTabItem (const DeckDescriptor& rDeckDescriptor) = 0;
     virtual void Layout() = 0;
     virtual void UpdateTabs() = 0;
-
-    DECL_LINK_TYPED(OnToolboxClicked, Button*, void);
 
     abstractbar::IController* pParentAbstractbarController;
 

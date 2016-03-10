@@ -235,12 +235,7 @@ private:
     void SwitchToDeck (
         const abstractbar::DeckDescriptor& rDeckDescriptor,
         const abstractbar::Context& rContext);
-    void ShowPopupMenu (
-        const Rectangle& rButtonBox,
-        const ::std::vector<abstractbar::TabBar::DeckMenuData>& rMenuData) const;
-    std::shared_ptr<PopupMenu> CreatePopupMenu (
-        const ::std::vector<abstractbar::TabBar::DeckMenuData>& rMenuData) const;
-    DECL_LINK_TYPED(OnMenuItemSelected, Menu*, bool);
+
     void BroadcastPropertyChange();
 
     /** The close of the deck changes the width of the child window.

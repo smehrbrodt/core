@@ -93,7 +93,6 @@ NotebookbarController::NotebookbarController (
               mpParentWindow,
               rxFrame,
               [this](const ::rtl::OUString& rsDeckId) { return this->OpenThenSwitchToDeck(rsDeckId); },
-              [this](const Rectangle& rButtonBox,const ::std::vector<TabBar::DeckMenuData>& rMenuData) { return this->ShowPopupMenu(rButtonBox,rMenuData); },
               this)),
       mxFrame(rxFrame),
       maCurrentContext(OUString(), OUString()),
@@ -837,127 +836,6 @@ IMPL_LINK_TYPED(NotebookbarController, WindowEventHandler, VclWindowEvent&, rEve
                 break;
          }
     }
-}
-
-void NotebookbarController::ShowPopupMenu (
-    const Rectangle& rButtonBox,
-    const ::std::vector<TabBar::DeckMenuData>& rMenuData) const
-{
-    std::shared_ptr<PopupMenu> pMenu = CreatePopupMenu(rMenuData);
-    pMenu->SetSelectHdl(LINK(const_cast<NotebookbarController*>(this), NotebookbarController, OnMenuItemSelected));
-
-    // pass toolbox button rect so the menu can stay open on button up
-    Rectangle aBox (rButtonBox);
-    aBox.Move(mpTabBar->GetPosPixel().X(), 0);
-    pMenu->Execute(mpParentWindow, aBox, PopupMenuFlags::ExecuteDown);
-}
-
-std::shared_ptr<PopupMenu> NotebookbarController::CreatePopupMenu (
-    const ::std::vector<TabBar::DeckMenuData>& rMenuData) const
-{
-    // Create the top level popup menu.
-    std::shared_ptr<PopupMenu> pMenu (new PopupMenu());
-    FloatingWindow* pMenuWindow = dynamic_cast<FloatingWindow*>(pMenu->GetWindow());
-    if (pMenuWindow != nullptr)
-    {
-        pMenuWindow->SetPopupModeFlags(pMenuWindow->GetPopupModeFlags() | FloatWinPopupFlags::NoMouseUpClose);
-    }
-
-    // Create sub menu for customization (hiding of deck tabs.)
-    PopupMenu* pCustomizationMenu = new PopupMenu();
-
-    SidebarResource aLocalResource;
-
-    // Add one entry for every tool panel element to individually make
-    // them visible or hide them.
-    sal_Int32 nIndex (0);
-    for(::std::vector<TabBar::DeckMenuData>::const_iterator
-            iItem(rMenuData.begin()),
-            iEnd(rMenuData.end());
-        iItem!=iEnd;
-        ++iItem,++nIndex)
-    {
-        const sal_Int32 nMenuIndex (nIndex+MID_FIRST_PANEL);
-        pMenu->InsertItem(nMenuIndex, iItem->msDisplayName, MenuItemBits::RADIOCHECK);
-        pMenu->CheckItem(nMenuIndex, iItem->mbIsCurrentDeck);
-        pMenu->EnableItem(nMenuIndex, iItem->mbIsEnabled&&iItem->mbIsActive);
-
-        const sal_Int32 nSubMenuIndex (nIndex+MID_FIRST_HIDE);
-        if (iItem->mbIsCurrentDeck)
-        {
-            // Don't allow the currently visible deck to be disabled.
-            pCustomizationMenu->InsertItem(nSubMenuIndex, iItem->msDisplayName, MenuItemBits::RADIOCHECK);
-            pCustomizationMenu->CheckItem(nSubMenuIndex);
-        }
-        else
-        {
-            pCustomizationMenu->InsertItem(nSubMenuIndex, iItem->msDisplayName, MenuItemBits::CHECKABLE);
-            pCustomizationMenu->CheckItem(nSubMenuIndex, iItem->mbIsEnabled && iItem->mbIsActive);
-        }
-    }
-
-    pMenu->InsertSeparator();
-
-    pCustomizationMenu->InsertSeparator();
-    pCustomizationMenu->InsertItem(MID_RESTORE_DEFAULT, SFX2_RESSTR(STRING_RESTORE));
-
-    pMenu->InsertItem(MID_CUSTOMIZATION, SFX2_RESSTR(STRING_CUSTOMIZATION));
-    pMenu->SetPopupMenu(MID_CUSTOMIZATION, pCustomizationMenu);
-
-    pMenu->RemoveDisabledEntries(false);
-
-    return pMenu;
-}
-
-IMPL_LINK_TYPED(NotebookbarController, OnMenuItemSelected, Menu*, pMenu, bool)
-{
-    if (pMenu == nullptr)
-    {
-        OSL_ENSURE(pMenu!=nullptr, "sfx2::notebookbar::NotebookbarController::OnMenuItemSelected: illegal menu!");
-        return false;
-    }
-
-    pMenu->Deactivate();
-    const sal_Int32 nIndex (pMenu->GetCurItemId());
-    switch (nIndex)
-    {
-
-        case MID_RESTORE_DEFAULT:
-            mpTabBar->RestoreHideFlags();
-            break;
-        default:
-        {
-            try
-            {
-                if (nIndex >= MID_FIRST_PANEL && nIndex<MID_FIRST_HIDE)
-                {
-                    RequestOpenDeck();
-                    SwitchToDeck(mpTabBar->GetDeckIdForIndex(nIndex - MID_FIRST_PANEL));
-                }
-                else if (nIndex >=MID_FIRST_HIDE)
-                    if (pMenu->GetItemBits(nIndex) == MenuItemBits::CHECKABLE)
-                    {
-                        mpTabBar->ToggleHideFlag(nIndex-MID_FIRST_HIDE);
-
-                        // Find the set of decks that could be displayed for the new context.
-                        ResourceManager::DeckContextDescriptorContainer aDecks;
-                        mpResourceManager->GetMatchingDecks (
-                                                    aDecks,
-                                                    GetCurrentContext(),
-                                                    IsDocumentReadOnly(),
-                                                    mxFrame->getController());
-                        // Notify the tab bar about the updated set of decks.
-                        mpTabBar->SetDecks(aDecks);
-                    }
-            }
-            catch (RuntimeException&)
-            {
-            }
-        }
-        break;
-    }
-
-    return true;
 }
 
 void NotebookbarController::RequestCloseDeck()

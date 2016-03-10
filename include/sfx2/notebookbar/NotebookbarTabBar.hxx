@@ -25,13 +25,13 @@ public:
         vcl::Window* pParentWindow,
         const css::uno::Reference<css::frame::XFrame>& rxFrame,
         const ::std::function<void (const ::rtl::OUString&rsDeckId)>& rDeckActivationFunctor,
-        const PopupMenuProvider& rPopupMenuProvider,
         sfx2::abstractbar::IController* rParentController);
     virtual ~NotebookbarTabBar();
 
     virtual void Paint (vcl::RenderContext& /*rRenderContext*/, const Rectangle& rUpdateArea) override;
     static sal_Int32 GetDefaultWidth();
     static sal_Int32 GetDefaultHeight();
+    virtual void UpdateFocusManager (sfx2::abstractbar::FocusManager& rFocusManager) override;
 private:
     virtual void Layout() override;
     virtual void UpdateTabs() override;

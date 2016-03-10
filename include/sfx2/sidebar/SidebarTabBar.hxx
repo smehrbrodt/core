@@ -28,16 +28,22 @@ public:
         const PopupMenuProvider& rPopupMenuProvider,
         sfx2::abstractbar::IController* rParentController);
     virtual ~SidebarTabBar();
+    virtual void dispose() override;
 
     virtual void Paint (vcl::RenderContext& /*rRenderContext*/, const Rectangle& rUpdateArea) override;
     static sal_Int32 GetDefaultWidth();
+    virtual void UpdateFocusManager (sfx2::abstractbar::FocusManager& rFocusManager) override;
 
 private:
     virtual void Layout() override;
     virtual void UpdateTabs() override;
     virtual VclPtr<RadioButton> CreateTabItem (const sfx2::abstractbar::DeckDescriptor& rDeckDescriptor) override;
     Image GetItemImage (const sfx2::abstractbar::DeckDescriptor& rDeskDescriptor) const;
+    DECL_LINK_TYPED(OnToolboxClicked, Button*, void);
+
     sal_Int32 mnMenuSeparatorY;
+    PopupMenuProvider maPopupMenuProvider;
+    VclPtr<CheckBox> mpMenuButton;
 };
 
 

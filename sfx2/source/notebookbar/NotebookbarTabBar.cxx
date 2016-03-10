@@ -46,10 +46,9 @@ namespace sfx2 { namespace notebookbar {
 NotebookbarTabBar::NotebookbarTabBar(vcl::Window* pParentWindow,
                const Reference<frame::XFrame>& rxFrame,
                const std::function<void (const OUString&)>& rDeckActivationFunctor,
-               const PopupMenuProvider& rPopupMenuProvider,
                sfx2::abstractbar::IController* rParentAbstractbarController
               )
-    : TabBar(pParentWindow, rxFrame, rDeckActivationFunctor, rPopupMenuProvider, rParentAbstractbarController)
+    : TabBar(pParentWindow, rxFrame, rDeckActivationFunctor, rParentAbstractbarController)
 {
     Layout();
 }
@@ -101,15 +100,6 @@ void NotebookbarTabBar::Layout()
         nX += rButton.GetSizePixel().Width() + 1 + aPadding.Right();
     }
 
-    // Place the separator and the menu button.
-    /*if (mpMenuButton != nullptr)
-    {
-        nX += Theme::GetInteger(Theme::Int_TabMenuPadding);
-        mnMenuSeparatorX = nX - Theme::GetInteger(Theme::Int_TabMenuPadding)/2 - 1;
-        mpMenuButton->SetPosSizePixel(Point(nX, nY), aTabItemSize);
-        mpMenuButton->Show();
-    }*/
-
     Invalidate();
 }
 
@@ -138,15 +128,6 @@ VclPtr<RadioButton> NotebookbarTabBar::CreateTabItem(const DeckDescriptor& rDeck
 
 void NotebookbarTabBar::UpdateTabs()
 {
-    Image aImage = Theme::GetImage(Theme::Image_TabBarMenu);
-    if ( mpMenuButton->GetDPIScaleFactor() > 1 )
-    {
-        BitmapEx b = aImage.GetBitmapEx();
-        b.Scale(mpMenuButton->GetDPIScaleFactor(), mpMenuButton->GetDPIScaleFactor(), BmpScaleFlag::Fast);
-        aImage = Image(b);
-    }
-    mpMenuButton->SetModeImage(aImage);
-
     for(ItemContainer::const_iterator
             iItem(maItems.begin()), iEnd(maItems.end());
         iItem!=iEnd;
@@ -161,6 +142,18 @@ void NotebookbarTabBar::UpdateTabs()
     }
 
     Invalidate();
+}
+
+void NotebookbarTabBar::UpdateFocusManager(FocusManager& rFocusManager)
+{
+    std::vector<Button*> aButtons;
+    aButtons.reserve(maItems.size()+1);
+
+    for (ItemContainer::const_iterator iItem(maItems.begin()); iItem != maItems.end(); ++iItem)
+    {
+        aButtons.push_back(iItem->mpButton.get());
+    }
+    rFocusManager.SetButtons(aButtons);
 }
 
 } } // end of namespace sfx2::abstractbar

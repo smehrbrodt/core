@@ -49,13 +49,24 @@ SidebarTabBar::SidebarTabBar(vcl::Window* pParentWindow,
                const PopupMenuProvider& rPopupMenuProvider,
                sfx2::abstractbar::IController* rParentAbstractbarController
               )
-    : TabBar(pParentWindow, rxFrame, rDeckActivationFunctor, rPopupMenuProvider, rParentAbstractbarController)
+    : TabBar(pParentWindow, rxFrame, rDeckActivationFunctor, rParentAbstractbarController),
+    maPopupMenuProvider(rPopupMenuProvider),
+    mpMenuButton(ControlFactory::CreateMenuButton(this))
 {
+    mpMenuButton->SetModeImage(Theme::GetImage(Theme::Image_TabBarMenu));
+    mpMenuButton->SetClickHdl(LINK(this, SidebarTabBar, OnToolboxClicked));
+    mpMenuButton->SetQuickHelpText(SFX2_RESSTR(SFX_STR_SIDEBAR_SETTINGS));
+
     Layout();
 }
 
 SidebarTabBar::~SidebarTabBar() {
 
+}
+
+void SidebarTabBar::dispose() {
+    mpMenuButton.disposeAndClear();
+    TabBar::dispose();
 }
 
 void SidebarTabBar::Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea)
@@ -173,6 +184,51 @@ Image SidebarTabBar::GetItemImage(const DeckDescriptor& rDeckDescriptor) const
         rDeckDescriptor.msIconURL,
         rDeckDescriptor.msHighContrastIconURL,
         mxFrame);
+}
+
+void SidebarTabBar::UpdateFocusManager(FocusManager& rFocusManager)
+{
+    std::vector<Button*> aButtons;
+    aButtons.reserve(maItems.size()+1);
+
+    aButtons.push_back(mpMenuButton.get());
+    for (ItemContainer::const_iterator iItem(maItems.begin()); iItem != maItems.end(); ++iItem)
+    {
+        aButtons.push_back(iItem->mpButton.get());
+    }
+    rFocusManager.SetButtons(aButtons);
+}
+
+IMPL_LINK_NOARG_TYPED(SidebarTabBar, OnToolboxClicked, Button*, void)
+{
+    if (!mpMenuButton)
+        return;
+
+    std::vector<DeckMenuData> aMenuData;
+
+    for (ItemContainer::const_iterator iItem(maItems.begin()); iItem != maItems.end(); ++iItem)
+    {
+        const DeckDescriptor* pDeckDescriptor = pParentAbstractbarController->GetResourceManager()->GetDeckDescriptor(iItem->msDeckId);
+
+        if (pDeckDescriptor != nullptr)
+        {
+            DeckMenuData aData;
+            aData.msDisplayName = pDeckDescriptor->msTitle;
+            aData.msDeckId = pDeckDescriptor->msId;
+            aData.mbIsCurrentDeck = iItem->mpButton->IsChecked();
+            aData.mbIsActive = !iItem->mbIsHidden;
+            aData.mbIsEnabled = iItem->mpButton->IsEnabled();
+
+            aMenuData.push_back(aData);
+        }
+    }
+
+    maPopupMenuProvider(
+        Rectangle(
+            mpMenuButton->GetPosPixel(),
+            mpMenuButton->GetSizePixel()),
+        aMenuData);
+    mpMenuButton->Check(false);
 }
 
 } } // end of namespace sfx2::abstractbar
