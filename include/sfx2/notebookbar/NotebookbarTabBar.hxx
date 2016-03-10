@@ -34,6 +34,8 @@ public:
     static sal_Int32 GetDefaultHeight();
 private:
     virtual void Layout() override;
+    virtual void UpdateTabs() override;
+    virtual VclPtr<RadioButton> CreateTabItem (const sfx2::abstractbar::DeckDescriptor& rDeckDescriptor) override;
     sal_Int32 mnMenuSeparatorX;
 };
 

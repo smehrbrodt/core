@@ -107,10 +107,9 @@ protected:
     const ::std::function<void (const ::rtl::OUString&rsDeckId)> maDeckActivationFunctor;
     PopupMenuProvider maPopupMenuProvider;
 
-    VclPtr<RadioButton> CreateTabItem (const DeckDescriptor& rDeckDescriptor);
-    Image GetItemImage (const DeckDescriptor& rDeskDescriptor) const;
+    virtual VclPtr<RadioButton> CreateTabItem (const DeckDescriptor& rDeckDescriptor) = 0;
     virtual void Layout() = 0;
-    void UpdateButtonIcons();
+    virtual void UpdateTabs() = 0;
 
     DECL_LINK_TYPED(OnToolboxClicked, Button*, void);
 

@@ -16,37 +16,37 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
-#ifndef INCLUDED_SFX2_ABSTRACTBAR_CONTROLFACTORY_HXX
-#define INCLUDED_SFX2_ABSTRACTBAR_CONTROLFACTORY_HXX
+#ifndef INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARTABITEM_HXX
+#define INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARTABITEM_HXX
 
-#include <sfx2/dllapi.h>
-#include <sfx2/abstractbar/SidebarToolBox.hxx>
 #include <vcl/button.hxx>
-#include <vcl/vclptr.hxx>
-#include <com/sun/star/frame/XFrame.hpp>
-class ToolBox;
 
-namespace sfx2 { namespace abstractbar {
+#include <sfx2/abstractbar/DeckDescriptor.hxx>
 
-class ToolBoxBackground;
+namespace vcl { class Window; }
 
-/** Factory for controls used in sidebar panels.
-    The reason to use this factory instead of creating the controls
-    directly is that this way the sidebar has a little more control
-    over look and feel of its controls.
+namespace sfx2 { namespace notebookbar {
+
+/** A single button in the tab bar.
 */
-class SFX2_DLLPUBLIC ControlFactory
+class NotebookbarTabItem
+    : public RadioButton
 {
 public:
-    /** Create the menu button for the task bar.
-    */
-    static VclPtr<CheckBox> CreateMenuButton (vcl::Window* pParentWindow);
+    NotebookbarTabItem (vcl::Window* pParentWindow);
 
-    static VclPtr<ImageRadioButton> CreateTabImageItem (vcl::Window* pParentWindow);
+    virtual void Paint (vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea) override;
+    virtual void MouseMove (const MouseEvent& rEvent) override;
+    virtual void MouseButtonDown (const MouseEvent& rMouseEvent) override;
+    virtual void MouseButtonUp (const MouseEvent& rMouseEvent) override;
 
-    static VclPtr<RadioButton> CreateTabTextItem (vcl::Window* pParentWindow);
+private:
+    bool mbIsLeftButtonDown;
+    enum PaintType {
+        PT_Native,
+        PT_Theme
+    } mePaintType;
 };
-
 
 } } // end of namespace sfx2::abstractbar
 

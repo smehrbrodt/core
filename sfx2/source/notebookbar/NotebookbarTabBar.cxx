@@ -18,7 +18,6 @@
  */
 
 #include <sfx2/notebookbar/NotebookbarTabBar.hxx>
-#include <sfx2/abstractbar/TabItem.hxx>
 #include <sfx2/abstractbar/ControlFactory.hxx>
 #include <sfx2/abstractbar/DeckDescriptor.hxx>
 #include <sfx2/abstractbar/Paint.hxx>
@@ -78,9 +77,6 @@ void NotebookbarTabBar::Layout()
         Theme::GetInteger(Theme::Int_TabBarBottomPadding));
     sal_Int32 nX (0);
     sal_Int32 nY (aPadding.Left());
-    const Size aTabItemSize (
-        Theme::GetInteger(Theme::Int_TabItemWidth) * GetDPIScaleFactor(),
-        Theme::GetInteger(Theme::Int_TabItemHeight) * GetDPIScaleFactor());
 
     // Place the deck selection buttons.
     for(ItemContainer::const_iterator
@@ -91,26 +87,28 @@ void NotebookbarTabBar::Layout()
         Button& rButton (*iItem->mpButton);
         rButton.Show( ! iItem->mbIsHidden);
 
+        Size aTabItemSize (
+            rButton.GetOptimalSize().getWidth(),
+            Theme::GetInteger(Theme::Int_TabItemHeight) * GetDPIScaleFactor());
+
         if (iItem->mbIsHidden)
             continue;
 
-        // Place and size the icon.
-        rButton.SetPosSizePixel(
-            Point(nX,nY),
-            aTabItemSize);
+        // Place and size the button
+        rButton.SetPosSizePixel(Point(nX, nY), aTabItemSize);
         rButton.Show();
 
         nX += rButton.GetSizePixel().Width() + 1 + aPadding.Right();
     }
 
     // Place the separator and the menu button.
-    if (mpMenuButton != nullptr)
+    /*if (mpMenuButton != nullptr)
     {
         nX += Theme::GetInteger(Theme::Int_TabMenuPadding);
         mnMenuSeparatorX = nX - Theme::GetInteger(Theme::Int_TabMenuPadding)/2 - 1;
         mpMenuButton->SetPosSizePixel(Point(nX, nY), aTabItemSize);
         mpMenuButton->Show();
-    }
+    }*/
 
     Invalidate();
 }
@@ -127,6 +125,42 @@ sal_Int32 NotebookbarTabBar::GetDefaultHeight()
     return Theme::GetInteger(Theme::Int_TabItemHeight)
         + Theme::GetInteger(Theme::Int_TabBarTopPadding)
         + Theme::GetInteger(Theme::Int_TabBarBottomPadding);
+}
+
+VclPtr<RadioButton> NotebookbarTabBar::CreateTabItem(const DeckDescriptor& rDeckDescriptor)
+{
+    VclPtr<RadioButton> pItem = ControlFactory::CreateTabTextItem(this);
+    pItem->SetText(rDeckDescriptor.msTitle);
+    pItem->SetAccessibleName(rDeckDescriptor.msTitle);
+    pItem->SetAccessibleDescription(rDeckDescriptor.msHelpText);
+    return pItem;
+}
+
+void NotebookbarTabBar::UpdateTabs()
+{
+    Image aImage = Theme::GetImage(Theme::Image_TabBarMenu);
+    if ( mpMenuButton->GetDPIScaleFactor() > 1 )
+    {
+        BitmapEx b = aImage.GetBitmapEx();
+        b.Scale(mpMenuButton->GetDPIScaleFactor(), mpMenuButton->GetDPIScaleFactor(), BmpScaleFlag::Fast);
+        aImage = Image(b);
+    }
+    mpMenuButton->SetModeImage(aImage);
+
+    for(ItemContainer::const_iterator
+            iItem(maItems.begin()), iEnd(maItems.end());
+        iItem!=iEnd;
+        ++iItem)
+    {
+        const DeckDescriptor* pDeckDescriptor = pParentAbstractbarController->GetResourceManager()->GetDeckDescriptor(iItem->msDeckId);
+
+        if (pDeckDescriptor != nullptr)
+        {
+            iItem->mpButton->SetText(pDeckDescriptor->msHelpText);
+        }
+    }
+
+    Invalidate();
 }
 
 } } // end of namespace sfx2::abstractbar

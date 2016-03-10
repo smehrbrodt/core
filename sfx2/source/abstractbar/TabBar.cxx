@@ -18,7 +18,6 @@
  */
 
 #include <sfx2/abstractbar/TabBar.hxx>
-#include <sfx2/abstractbar/TabItem.hxx>
 #include <sfx2/abstractbar/ControlFactory.hxx>
 #include <sfx2/abstractbar/DeckDescriptor.hxx>
 #include <sfx2/abstractbar/Paint.hxx>
@@ -121,43 +120,8 @@ void TabBar::SetDecks(const ResourceManager::DeckContextDescriptorContainer& rDe
         rItem.mpButton->Enable(iDeck->mbIsEnabled);
     }
 
-    UpdateButtonIcons();
+    UpdateTabs();
     Layout();
-}
-
-void TabBar::UpdateButtonIcons()
-{
-    Image aImage = Theme::GetImage(Theme::Image_TabBarMenu);
-    if ( mpMenuButton->GetDPIScaleFactor() > 1 )
-    {
-        BitmapEx b = aImage.GetBitmapEx();
-        b.Scale(mpMenuButton->GetDPIScaleFactor(), mpMenuButton->GetDPIScaleFactor(), BmpScaleFlag::Fast);
-        aImage = Image(b);
-    }
-    mpMenuButton->SetModeImage(aImage);
-
-    for(ItemContainer::const_iterator
-            iItem(maItems.begin()), iEnd(maItems.end());
-        iItem!=iEnd;
-        ++iItem)
-    {
-        const DeckDescriptor* pDeckDescriptor = pParentAbstractbarController->GetResourceManager()->GetDeckDescriptor(iItem->msDeckId);
-
-        if (pDeckDescriptor != nullptr)
-        {
-            aImage = GetItemImage(*pDeckDescriptor);
-            if ( mpMenuButton->GetDPIScaleFactor() > 1 )
-            {
-                BitmapEx b = aImage.GetBitmapEx();
-                b.Scale(mpMenuButton->GetDPIScaleFactor(), mpMenuButton->GetDPIScaleFactor(), BmpScaleFlag::Fast);
-                aImage = Image(b);
-            }
-
-            iItem->mpButton->SetModeImage(aImage);
-        }
-    }
-
-    Invalidate();
 }
 
 void TabBar::HighlightDeck (const OUString& rsDeckId)
@@ -184,7 +148,7 @@ void TabBar::RemoveDeckHighlight ()
 void TabBar::DataChanged (const DataChangedEvent& rDataChangedEvent)
 {
     SetBackground(Theme::GetPaint(Theme::Paint_TabBarBackground).GetWallpaper());
-    UpdateButtonIcons();
+    UpdateTabs();
 
     Window::DataChanged(rDataChangedEvent);
 }
@@ -225,24 +189,6 @@ bool TabBar::Notify (NotifyEvent& rEvent)
         }
     }
     return false;
-}
-
-VclPtr<RadioButton> TabBar::CreateTabItem(const DeckDescriptor& rDeckDescriptor)
-{
-    VclPtr<RadioButton> pItem = ControlFactory::CreateTabItem(this);
-    pItem->SetAccessibleName(rDeckDescriptor.msTitle);
-    pItem->SetAccessibleDescription(rDeckDescriptor.msHelpText);
-    pItem->SetHelpText(rDeckDescriptor.msHelpText);
-    pItem->SetQuickHelpText(rDeckDescriptor.msHelpText);
-    return pItem;
-}
-
-Image TabBar::GetItemImage(const DeckDescriptor& rDeckDescriptor) const
-{
-    return Tools::GetImage(
-        rDeckDescriptor.msIconURL,
-        rDeckDescriptor.msHighContrastIconURL,
-        mxFrame);
 }
 
 IMPL_LINK_NOARG_TYPED(TabBar::Item, HandleClick, Button*, void)

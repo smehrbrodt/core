@@ -34,6 +34,9 @@ public:
 
 private:
     virtual void Layout() override;
+    virtual void UpdateTabs() override;
+    virtual VclPtr<RadioButton> CreateTabItem (const sfx2::abstractbar::DeckDescriptor& rDeckDescriptor) override;
+    Image GetItemImage (const sfx2::abstractbar::DeckDescriptor& rDeskDescriptor) const;
     sal_Int32 mnMenuSeparatorY;
 };
 

@@ -19,8 +19,9 @@
 #include <sfx2/abstractbar/ControlFactory.hxx>
 
 #include <sfx2/abstractbar/MenuButton.hxx>
-#include <sfx2/abstractbar/TabItem.hxx>
 #include <sfx2/abstractbar/SidebarToolBox.hxx>
+#include <sfx2/sidebar/SidebarTabItem.hxx>
+#include <sfx2/notebookbar/NotebookbarTabItem.hxx>
 #include <vcl/toolbox.hxx>
 
 namespace sfx2 { namespace abstractbar {
@@ -30,9 +31,14 @@ VclPtr<CheckBox> ControlFactory::CreateMenuButton (vcl::Window* pParentWindow)
     return VclPtr<MenuButton>::Create(pParentWindow);
 }
 
-VclPtr<ImageRadioButton> ControlFactory::CreateTabItem (vcl::Window* pParentWindow)
+VclPtr<ImageRadioButton> ControlFactory::CreateTabImageItem (vcl::Window* pParentWindow)
 {
-    return VclPtr<TabItem>::Create(pParentWindow);
+    return VclPtr<sfx2::sidebar::SidebarTabItem>::Create(pParentWindow);
+}
+
+VclPtr<RadioButton> ControlFactory::CreateTabTextItem (vcl::Window* pParentWindow)
+{
+    return VclPtr<sfx2::notebookbar::NotebookbarTabItem>::Create(pParentWindow);
 }
 
 } } // end of namespace sfx2::abstractbar

@@ -16,8 +16,8 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
-#ifndef INCLUDED_SFX2_SOURCE_ABSTRACTBAR_TABITEM_HXX
-#define INCLUDED_SFX2_SOURCE_ABSTRACTBAR_TABITEM_HXX
+#ifndef INCLUDED_SFX2_SOURCE_SIDEBAR_SIDEBARTABITEM_HXX
+#define INCLUDED_SFX2_SOURCE_SIDEBAR_SIDEBARTABITEM_HXX
 
 #include <vcl/button.hxx>
 
@@ -25,15 +25,15 @@
 
 namespace vcl { class Window; }
 
-namespace sfx2 { namespace abstractbar {
+namespace sfx2 { namespace sidebar {
 
 /** A single button in the tab bar.
 */
-class TabItem
+class SidebarTabItem
     : public ImageRadioButton
 {
 public:
-    TabItem (vcl::Window* pParentWindow);
+    SidebarTabItem (vcl::Window* pParentWindow);
 
     virtual void Paint (vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea) override;
     virtual void MouseMove (const MouseEvent& rEvent) override;

@@ -18,7 +18,6 @@
  */
 
 #include <sfx2/sidebar/SidebarTabBar.hxx>
-#include <sfx2/abstractbar/TabItem.hxx>
 #include <sfx2/abstractbar/ControlFactory.hxx>
 #include <sfx2/abstractbar/DeckDescriptor.hxx>
 #include <sfx2/abstractbar/Paint.hxx>
@@ -121,6 +120,59 @@ sal_Int32 SidebarTabBar::GetDefaultWidth()
     return Theme::GetInteger(Theme::Int_TabItemWidth)
         + Theme::GetInteger(Theme::Int_TabBarLeftPadding)
         + Theme::GetInteger(Theme::Int_TabBarRightPadding);
+}
+
+VclPtr<RadioButton> SidebarTabBar::CreateTabItem(const DeckDescriptor& rDeckDescriptor)
+{
+    VclPtr<RadioButton> pItem = ControlFactory::CreateTabImageItem(this);
+    pItem->SetAccessibleName(rDeckDescriptor.msTitle);
+    pItem->SetAccessibleDescription(rDeckDescriptor.msHelpText);
+    pItem->SetHelpText(rDeckDescriptor.msHelpText);
+    pItem->SetQuickHelpText(rDeckDescriptor.msHelpText);
+    return pItem;
+}
+
+void SidebarTabBar::UpdateTabs()
+{
+    Image aImage = Theme::GetImage(Theme::Image_TabBarMenu);
+    if ( mpMenuButton->GetDPIScaleFactor() > 1 )
+    {
+        BitmapEx b = aImage.GetBitmapEx();
+        b.Scale(mpMenuButton->GetDPIScaleFactor(), mpMenuButton->GetDPIScaleFactor(), BmpScaleFlag::Fast);
+        aImage = Image(b);
+    }
+    mpMenuButton->SetModeImage(aImage);
+
+    for(ItemContainer::const_iterator
+            iItem(maItems.begin()), iEnd(maItems.end());
+        iItem!=iEnd;
+        ++iItem)
+    {
+        const DeckDescriptor* pDeckDescriptor = pParentAbstractbarController->GetResourceManager()->GetDeckDescriptor(iItem->msDeckId);
+
+        if (pDeckDescriptor != nullptr)
+        {
+            aImage = GetItemImage(*pDeckDescriptor);
+            if ( mpMenuButton->GetDPIScaleFactor() > 1 )
+            {
+                BitmapEx b = aImage.GetBitmapEx();
+                b.Scale(mpMenuButton->GetDPIScaleFactor(), mpMenuButton->GetDPIScaleFactor(), BmpScaleFlag::Fast);
+                aImage = Image(b);
+            }
+
+            iItem->mpButton->SetModeImage(aImage);
+        }
+    }
+
+    Invalidate();
+}
+
+Image SidebarTabBar::GetItemImage(const DeckDescriptor& rDeckDescriptor) const
+{
+    return Tools::GetImage(
+        rDeckDescriptor.msIconURL,
+        rDeckDescriptor.msHighContrastIconURL,
+        mxFrame);
 }
 
 } } // end of namespace sfx2::abstractbar

@@ -17,7 +17,7 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <sfx2/abstractbar/TabItem.hxx>
+#include <sfx2/sidebar/SidebarTabItem.hxx>
 
 #include <sfx2/abstractbar/DrawHelper.hxx>
 #include <sfx2/abstractbar/Paint.hxx>
@@ -27,10 +27,11 @@
 
 using namespace css;
 using namespace css::uno;
+using namespace sfx2::abstractbar;
 
-namespace sfx2 { namespace abstractbar {
+namespace sfx2 { namespace sidebar {
 
-TabItem::TabItem (vcl::Window* pParentWindow)
+SidebarTabItem::SidebarTabItem (vcl::Window* pParentWindow)
     : ImageRadioButton(pParentWindow),
       mbIsLeftButtonDown(false),
       mePaintType(PT_Theme)
@@ -42,7 +43,7 @@ TabItem::TabItem (vcl::Window* pParentWindow)
 #endif
 }
 
-void TabItem::Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea)
+void SidebarTabItem::Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdateArea)
 {
     switch (mePaintType)
     {
@@ -75,14 +76,14 @@ void TabItem::Paint(vcl::RenderContext& rRenderContext, const Rectangle& rUpdate
     }
 }
 
-void TabItem::MouseMove(const MouseEvent& rEvent)
+void SidebarTabItem::MouseMove(const MouseEvent& rEvent)
 {
     if (rEvent.IsEnterWindow() || rEvent.IsLeaveWindow())
         Invalidate();
     ImageRadioButton::MouseMove(rEvent);
 }
 
-void TabItem::MouseButtonDown(const MouseEvent& rMouseEvent)
+void SidebarTabItem::MouseButtonDown(const MouseEvent& rMouseEvent)
 {
     if (rMouseEvent.IsLeft())
     {
@@ -92,7 +93,7 @@ void TabItem::MouseButtonDown(const MouseEvent& rMouseEvent)
     }
 }
 
-void TabItem::MouseButtonUp(const MouseEvent& rMouseEvent)
+void SidebarTabItem::MouseButtonUp(const MouseEvent& rMouseEvent)
 {
     if (IsMouseCaptured())
         ReleaseMouse();
