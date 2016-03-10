@@ -19,14 +19,14 @@
 <!DOCTYPE oor:component-data SYSTEM "../../../../../component-update.dtd">
 <oor:component-data oor:name="Notebookbar" oor:package="org.openoffice.Office.UI" xmlns:install="http://openoffice.org/2004/installation" xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <node oor:name="Content">
-    <node oor:name="TabList">
+    <node oor:name="DeckList">
 
-      <node oor:name="HomeTab" oor:op="replace">
+      <node oor:name="HomeDeck" oor:op="replace">
         <prop oor:name="Title" oor:type="xs:string">
           <value xml:lang="en-US">Home</value>
         </prop>
         <prop oor:name="Id" oor:type="xs:string">
-          <value>HomeTab</value>
+          <value>HomeDeck</value>
         </prop>
         <prop oor:name="ContextList">
           <value oor:separator=";">
@@ -39,17 +39,17 @@
       </node>
 
     </node>
-    <node oor:name="GroupList">
+    <node oor:name="PanelList">
 
-      <node oor:name="FormattingGroup" oor:op="replace">
+      <node oor:name="FormattingPanel" oor:op="replace">
         <prop oor:name="Title" oor:type="xs:string">
           <value xml:lang="en-US">Formatting</value>
         </prop>
         <prop oor:name="Id" oor:type="xs:string">
-          <value>FormattingGroup</value>
+          <value>FormattingPanel</value>
         </prop>
-        <prop oor:name="TabId" oor:type="xs:string">
-          <value>HomeTab</value>
+        <prop oor:name="DeckId" oor:type="xs:string">
+          <value>HomeDeck</value>
         </prop>
         <prop oor:name="ContextList">
           <value oor:separator=";">
@@ -81,15 +81,15 @@
         </prop>
       </node>
 
-      <node oor:name="PagePropertyGroup" oor:op="replace">
+      <node oor:name="PagePropertyPanel" oor:op="replace">
         <prop oor:name="Title" oor:type="xs:string">
           <value xml:lang="en-US">Page</value>
         </prop>
         <prop oor:name="Id" oor:type="xs:string">
-          <value>PagePropertyGroup</value>
+          <value>PagePropertyPanel</value>
         </prop>
-        <prop oor:name="TabId" oor:type="xs:string">
-          <value>HomeTab</value>
+        <prop oor:name="DeckId" oor:type="xs:string">
+          <value>HomeDeck</value>
         </prop>
         <prop oor:name="DefaultMenuCommand">
           <value>.uno:PageDialog</value>
