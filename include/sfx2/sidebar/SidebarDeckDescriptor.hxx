@@ -16,43 +16,30 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
+#ifndef INCLUDED_SFX2_SOURCE_SIDEBAR_SIDEBARDECKDESCRIPTOR_HXX
+#define INCLUDED_SFX2_SOURCE_SIDEBAR_SIDEBARDECKDESCRIPTOR_HXX
 
-#include <sfx2/abstractbar/PanelDescriptor.hxx>
 
-namespace sfx2 { namespace abstractbar {
+#include <sfx2/abstractbar/DeckDescriptor.hxx>
 
-PanelDescriptor::PanelDescriptor()
-    : msTitle(),
-      msId(),
-      msDeckId(),
-      msHelpURL(),
-      maContextList(),
-      msImplementationURL(),
-      mnOrderIndex(10000), // Default value as defined in Sidebar.xcs
-      mbShowForReadOnlyDocuments(false),
-      mbWantsCanvas(false),
-      mbExperimental(false)
+namespace sfx2 { namespace sidebar {
+
+class SidebarDeckDescriptor
+    : public sfx2::abstractbar::DeckDescriptor
 {
-}
+public:
+    OUString msIconURL;
+    OUString msHighContrastIconURL;
+    OUString msTitleBarIconURL;
+    OUString msHighContrastTitleBarIconURL;
 
-PanelDescriptor::PanelDescriptor (const PanelDescriptor& rOther)
-    : msTitle(rOther.msTitle),
-      msId(rOther.msId),
-      msDeckId(rOther.msDeckId),
-      msHelpURL(rOther.msHelpURL),
-      maContextList(rOther.maContextList),
-      msImplementationURL(rOther.msImplementationURL),
-      mnOrderIndex(rOther.mnOrderIndex),
-      mbShowForReadOnlyDocuments(rOther.mbShowForReadOnlyDocuments),
-      mbWantsCanvas(rOther.mbWantsCanvas),
-      mbExperimental(rOther.mbExperimental)
-{
-}
-
-PanelDescriptor::~PanelDescriptor()
-{
-}
+    SidebarDeckDescriptor();
+    SidebarDeckDescriptor (const SidebarDeckDescriptor& rOther);
+    ~SidebarDeckDescriptor();
+};
 
 } } // end of namespace sfx2::abstractbar
+
+#endif
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

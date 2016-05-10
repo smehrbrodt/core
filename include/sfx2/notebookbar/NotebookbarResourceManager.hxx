@@ -16,43 +16,32 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
+#ifndef INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARRESOURCEMANAGER_HXX
+#define INCLUDED_SFX2_SOURCE_NOTEBOOKBAR_NOTEBOOKBARRESOURCEMANAGER_HXX
 
-#include <sfx2/abstractbar/PanelDescriptor.hxx>
+#include <sfx2/abstractbar/ResourceManager.hxx>
 
-namespace sfx2 { namespace abstractbar {
 
-PanelDescriptor::PanelDescriptor()
-    : msTitle(),
-      msId(),
-      msDeckId(),
-      msHelpURL(),
-      maContextList(),
-      msImplementationURL(),
-      mnOrderIndex(10000), // Default value as defined in Sidebar.xcs
-      mbShowForReadOnlyDocuments(false),
-      mbWantsCanvas(false),
-      mbExperimental(false)
+namespace sfx2 { namespace notebookbar {
+
+
+/** Read the content of the Notebookbar.xcu file and provide access
+    methods so that the sidebar can easily decide which content panels
+    to display for a certain context.
+*/
+class NotebookbarResourceManager
+    : public sfx2::abstractbar::ResourceManager
 {
-}
+public:
+    virtual void ReadDeckList() override;
+    virtual void ReadPanelList() override;
 
-PanelDescriptor::PanelDescriptor (const PanelDescriptor& rOther)
-    : msTitle(rOther.msTitle),
-      msId(rOther.msId),
-      msDeckId(rOther.msDeckId),
-      msHelpURL(rOther.msHelpURL),
-      maContextList(rOther.maContextList),
-      msImplementationURL(rOther.msImplementationURL),
-      mnOrderIndex(rOther.mnOrderIndex),
-      mbShowForReadOnlyDocuments(rOther.mbShowForReadOnlyDocuments),
-      mbWantsCanvas(rOther.mbWantsCanvas),
-      mbExperimental(rOther.mbExperimental)
-{
-}
-
-PanelDescriptor::~PanelDescriptor()
-{
-}
+    NotebookbarResourceManager();
+    ~NotebookbarResourceManager();
+};
 
 } } // end of namespace sfx2::abstractbar
+
+#endif
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

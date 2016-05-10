@@ -38,8 +38,8 @@ class ResourceManager
 {
 public:
 
-     ResourceManager();
-    ~ResourceManager();
+    ResourceManager();
+    virtual ~ResourceManager();
 
     const DeckDescriptor* GetDeckDescriptor(const OUString& rsDeckId) const;
     DeckDescriptor* GetDeckDescriptor(const OUString& rsDeckId);
@@ -73,13 +73,13 @@ public:
     };
     typedef std::vector<PanelContextDescriptor> PanelContextDescriptorContainer;
 
-    const DeckContextDescriptorContainer& GetMatchingDecks(
+    virtual const DeckContextDescriptorContainer& GetMatchingDecks(
                                             DeckContextDescriptorContainer& rDeckDescriptors,
                                             const Context& rContext,
                                             const bool bIsDocumentReadOnly,
                                             const css::uno::Reference<css::frame::XController>& rxController);
 
-    const PanelContextDescriptorContainer& GetMatchingPanels(
+    virtual const PanelContextDescriptorContainer& GetMatchingPanels(
                                             PanelContextDescriptorContainer& rPanelDescriptors,
                                             const Context& rContext,
                                             const OUString& rsDeckId,
@@ -91,9 +91,7 @@ public:
                                   const bool bExpansionState,
                                   const Context& rContext);
 
-private:
-
-
+protected:
     typedef std::vector<DeckDescriptor> DeckContainer;
     DeckContainer maDecks;
 
@@ -103,14 +101,13 @@ private:
 
     SvtMiscOptions maMiscOptions;
 
-    void ReadDeckList();
-    void ReadPanelList();
+    virtual void ReadDeckList() = 0;
+    virtual void ReadPanelList() = 0;
     static void ReadContextList(const utl::OConfigurationNode& rNode,
                          ContextList& rContextList,
                          const OUString& rsDefaultMenuCommand);
 
-    void ReadLegacyAddons(const css::uno::Reference<css::frame::XController>& rxController);
-    static utl::OConfigurationTreeRoot GetLegacyAddonRootNode(const OUString& rsModuleName);
+
     static void GetToolPanelNodeNames(std::vector<OUString>& rMatchingNames,
                                const utl::OConfigurationTreeRoot& aRoot);
     bool IsDeckEnabled(const OUString& rsDeckId,
@@ -119,6 +116,12 @@ private:
 
     const DeckDescriptor* ImplGetDeckDescriptor(const OUString& rsDeckId) const;
     const PanelDescriptor* ImplGetPanelDescriptor(const OUString& rsPanelId) const;
+
+    // Helper methods
+    OUString getString(utl::OConfigurationNode const & aNode, const char* pNodeName);
+    sal_Int32 getInt32(utl::OConfigurationNode const & aNode, const char* pNodeName);
+    bool getBool(utl::OConfigurationNode const & aNode, const char* pNodeName);
+    css::uno::Sequence<OUString> BuildContextList (ContextList rContextList, bool isEnabled);
 };
 
 } } // end of namespace sfx2::abstractbar

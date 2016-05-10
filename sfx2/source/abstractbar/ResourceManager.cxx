@@ -38,66 +38,12 @@ using namespace css::uno;
 
 namespace sfx2 { namespace abstractbar {
 
-namespace
-{
-
-OUString getString(utl::OConfigurationNode const & aNode, const char* pNodeName)
-{
-    return comphelper::getString(aNode.getNodeValue(pNodeName));
-}
-sal_Int32 getInt32(utl::OConfigurationNode const & aNode, const char* pNodeName)
-{
-    return comphelper::getINT32(aNode.getNodeValue(pNodeName));
-}
-bool getBool(utl::OConfigurationNode const & aNode, const char* pNodeName)
-{
-    return comphelper::getBOOL(aNode.getNodeValue(pNodeName));
-}
-
-css::uno::Sequence<OUString> BuildContextList (ContextList rContextList, bool isEnabled)
-{
-    const ::std::vector<ContextList::Entry>& entries = rContextList.GetEntries();
-
-     css::uno::Sequence<OUString> result(entries.size());
-     long i = 0;
-
-    for (::std::vector<ContextList::Entry>::const_iterator iEntry(entries.begin()), iEnd(entries.end());
-                                                            iEntry!=iEnd; ++iEntry)
-         {
-            OUString appName = iEntry->maContext.msApplication;
-            OUString contextName = iEntry->maContext.msContext;
-            OUString menuCommand = iEntry->msMenuCommand;
-
-            OUString visibility;
-            if (isEnabled)
-                visibility = "visible";
-            else
-                visibility = "hidden";
-
-            OUString element = appName + ", " + contextName +", " + visibility;
-
-            if (!menuCommand.isEmpty())
-                element += ", "+menuCommand;
-
-            result[i] = element;
-
-            i++;
-        }
-
-    return result;
-
-}
-
-} //end anonymous namespace
-
 ResourceManager::ResourceManager()
     : maDecks(),
       maPanels(),
       maProcessedApplications(),
       maMiscOptions()
 {
-    ReadDeckList();
-    ReadPanelList();
 }
 
 ResourceManager::~ResourceManager()
@@ -172,8 +118,6 @@ const ResourceManager::DeckContextDescriptorContainer& ResourceManager::GetMatch
                                                             const bool bIsDocumentReadOnly,
                                                             const Reference<frame::XController>& rxController)
 {
-    ReadLegacyAddons(rxController);
-
     std::multimap<sal_Int32,DeckContextDescriptor> aOrderedIds;
     DeckContainer::const_iterator iDeck;
     for (iDeck = maDecks.begin(); iDeck != maDecks.end(); ++iDeck)
@@ -212,8 +156,6 @@ const ResourceManager::PanelContextDescriptorContainer& ResourceManager::GetMatc
                                                             const OUString& rsDeckId,
                                                             const Reference<frame::XController>& rxController)
 {
-    ReadLegacyAddons(rxController);
-
     std::multimap<sal_Int32, PanelContextDescriptor> aOrderedIds;
     PanelContainer::const_iterator iPanel;
     for (iPanel = maPanels.begin(); iPanel != maPanels.end(); ++iPanel)
@@ -245,54 +187,6 @@ const ResourceManager::PanelContextDescriptorContainer& ResourceManager::GetMatc
     }
 
     return rPanelIds;
-}
-
-void ResourceManager::ReadDeckList()
-{
-    const utl::OConfigurationTreeRoot aDeckRootNode(
-                                        comphelper::getProcessComponentContext(),
-                                        OUString("org.openoffice.Office.UI.Sidebar/Content/DeckList"),
-                                        false);
-    if (!aDeckRootNode.isValid())
-        return;
-
-    const Sequence<OUString> aDeckNodeNames (aDeckRootNode.getNodeNames());
-    const sal_Int32 nCount(aDeckNodeNames.getLength());
-    maDecks.resize(nCount);
-    sal_Int32 nWriteIndex(0);
-    for (sal_Int32 nReadIndex(0); nReadIndex<nCount; ++nReadIndex)
-    {
-        const utl::OConfigurationNode aDeckNode(aDeckRootNode.openNode(aDeckNodeNames[nReadIndex]));
-        if (!aDeckNode.isValid())
-            continue;
-
-        DeckDescriptor& rDeckDescriptor (maDecks[nWriteIndex++]);
-
-        rDeckDescriptor.msTitle = getString(aDeckNode, "Title");
-        rDeckDescriptor.msId = getString(aDeckNode, "Id");
-        rDeckDescriptor.msIconURL = getString(aDeckNode, "IconURL");
-        rDeckDescriptor.msHighContrastIconURL = getString(aDeckNode, "HighContrastIconURL");
-        rDeckDescriptor.msTitleBarIconURL = getString(aDeckNode, "TitleBarIconURL");
-        rDeckDescriptor.msHighContrastTitleBarIconURL = getString(aDeckNode, "HighContrastTitleBarIconURL");
-        rDeckDescriptor.msHelpURL = getString(aDeckNode, "HelpURL");
-        rDeckDescriptor.msHelpText = rDeckDescriptor.msTitle;
-    //  rDeckDescriptor.mbIsEnabled = true; // TODO ??? update rDeckDescriptor.mbIsEnabled according to context , see IsDeckEnabled ?
-        rDeckDescriptor.mnOrderIndex = getInt32(aDeckNode, "OrderIndex");
-        rDeckDescriptor.mbExperimental = getBool(aDeckNode, "IsExperimental");
-
-        rDeckDescriptor.msNodeName = aDeckNodeNames[nReadIndex];
-
-        ReadContextList(
-            aDeckNode,
-            rDeckDescriptor.maContextList,
-            OUString());
-
-    }
-
-    // When there where invalid nodes then we have to adapt the size
-    // of the deck vector.
-    if (nWriteIndex<nCount)
-        maDecks.resize(nWriteIndex);
 }
 
 void ResourceManager::SaveDecksSettings(const Context& rContext)
@@ -368,52 +262,6 @@ void ResourceManager::SaveDeckSettings(const DeckDescriptor* pDeckDesc)
 
      aPanelRootNode.commit();
 
-}
-
-void ResourceManager::ReadPanelList()
-{
-    const utl::OConfigurationTreeRoot aPanelRootNode(
-                                        comphelper::getProcessComponentContext(),
-                                        OUString("org.openoffice.Office.UI.Sidebar/Content/PanelList"),
-                                        false);
-    if (!aPanelRootNode.isValid())
-        return;
-
-    const Sequence<OUString> aPanelNodeNames (aPanelRootNode.getNodeNames());
-    const sal_Int32 nCount (aPanelNodeNames.getLength());
-    maPanels.resize(nCount);
-    sal_Int32 nWriteIndex (0);
-    for (sal_Int32 nReadIndex(0); nReadIndex<nCount; ++nReadIndex)
-    {
-        const utl::OConfigurationNode aPanelNode (aPanelRootNode.openNode(aPanelNodeNames[nReadIndex]));
-        if (!aPanelNode.isValid())
-            continue;
-
-        PanelDescriptor& rPanelDescriptor (maPanels[nWriteIndex++]);
-
-        rPanelDescriptor.msTitle = getString(aPanelNode, "Title");
-        rPanelDescriptor.mbIsTitleBarOptional = getBool(aPanelNode, "TitleBarIsOptional");
-        rPanelDescriptor.msId = getString(aPanelNode, "Id");
-        rPanelDescriptor.msDeckId = getString(aPanelNode, "DeckId");
-        rPanelDescriptor.msTitleBarIconURL = getString(aPanelNode, "TitleBarIconURL");
-        rPanelDescriptor.msHighContrastTitleBarIconURL = getString(aPanelNode, "HighContrastTitleBarIconURL");
-        rPanelDescriptor.msHelpURL = getString(aPanelNode, "HelpURL");
-        rPanelDescriptor.msImplementationURL = getString(aPanelNode, "ImplementationURL");
-        rPanelDescriptor.mnOrderIndex = getInt32(aPanelNode, "OrderIndex");
-        rPanelDescriptor.mbShowForReadOnlyDocuments = getBool(aPanelNode, "ShowForReadOnlyDocument");
-        rPanelDescriptor.mbWantsCanvas = getBool(aPanelNode, "WantsCanvas");
-        rPanelDescriptor.mbExperimental = getBool(aPanelNode, "IsExperimental");
-        const OUString sDefaultMenuCommand(getString(aPanelNode, "DefaultMenuCommand"));
-
-        rPanelDescriptor.msNodeName = aPanelNodeNames[nReadIndex];
-
-        ReadContextList(aPanelNode, rPanelDescriptor.maContextList, sDefaultMenuCommand);
-    }
-
-    // When there where invalid nodes then we have to adapt the size
-    // of the deck vector.
-    if (nWriteIndex<nCount)
-        maPanels.resize(nWriteIndex);
 }
 
 void ResourceManager::ReadContextList (
@@ -565,87 +413,6 @@ void ResourceManager::ReadContextList (
     }
 }
 
-void ResourceManager::ReadLegacyAddons (const Reference<frame::XController>& rxController)
-{
-    // Get module name for given frame.
-    OUString sModuleName (Tools::GetModuleName(rxController));
-    if (sModuleName.getLength() == 0)
-        return;
-    if (maProcessedApplications.find(sModuleName) != maProcessedApplications.end())
-    {
-        // Addons for this application have already been read.
-        // There is nothing more to do.
-        return;
-    }
-
-    // Mark module as processed.  Even when there is an error that
-    // prevents the configuration data from being read, this error
-    // will not be triggered a second time.
-    maProcessedApplications.insert(sModuleName);
-
-    // Get access to the configuration root node for the application.
-    utl::OConfigurationTreeRoot aLegacyRootNode (GetLegacyAddonRootNode(sModuleName));
-    if (!aLegacyRootNode.isValid())
-        return;
-
-    // Process child nodes.
-    std::vector<OUString> aMatchingNodeNames;
-    GetToolPanelNodeNames(aMatchingNodeNames, aLegacyRootNode);
-    const sal_Int32 nCount (aMatchingNodeNames.size());
-    size_t nDeckWriteIndex (maDecks.size());
-    size_t nPanelWriteIndex (maPanels.size());
-    maDecks.resize(maDecks.size() + nCount);
-    maPanels.resize(maPanels.size() + nCount);
-    for (sal_Int32 nReadIndex(0); nReadIndex<nCount; ++nReadIndex)
-    {
-        const OUString& rsNodeName (aMatchingNodeNames[nReadIndex]);
-        const utl::OConfigurationNode aChildNode (aLegacyRootNode.openNode(rsNodeName));
-        if (!aChildNode.isValid())
-            continue;
-
-        if ( rsNodeName == "private:resource/toolpanel/DrawingFramework/CustomAnimations" ||
-             rsNodeName == "private:resource/toolpanel/DrawingFramework/Layouts" ||
-             rsNodeName == "private:resource/toolpanel/DrawingFramework/MasterPages" ||
-             rsNodeName == "private:resource/toolpanel/DrawingFramework/SlideTransitions" ||
-             rsNodeName == "private:resource/toolpanel/DrawingFramework/TableDesign" )
-          continue;
-
-        DeckDescriptor& rDeckDescriptor (maDecks[nDeckWriteIndex++]);
-        rDeckDescriptor.msTitle = getString(aChildNode, "UIName");
-        rDeckDescriptor.msId = rsNodeName;
-        rDeckDescriptor.msIconURL = getString(aChildNode, "ImageURL");
-        rDeckDescriptor.msHighContrastIconURL = rDeckDescriptor.msIconURL;
-        rDeckDescriptor.msTitleBarIconURL.clear();
-        rDeckDescriptor.msHighContrastTitleBarIconURL.clear();
-        rDeckDescriptor.msHelpURL = getString(aChildNode, "HelpURL");
-        rDeckDescriptor.msHelpText = rDeckDescriptor.msTitle;
-        rDeckDescriptor.mbIsEnabled = true;
-        rDeckDescriptor.mnOrderIndex = 100000 + nReadIndex;
-        rDeckDescriptor.maContextList.AddContextDescription(Context(sModuleName, OUString("any")), true, OUString());
-
-        PanelDescriptor& rPanelDescriptor (maPanels[nPanelWriteIndex++]);
-        rPanelDescriptor.msTitle = getString(aChildNode, "UIName");
-        rPanelDescriptor.mbIsTitleBarOptional = true;
-        rPanelDescriptor.msId = rsNodeName;
-        rPanelDescriptor.msDeckId = rsNodeName;
-        rPanelDescriptor.msTitleBarIconURL.clear();
-        rPanelDescriptor.msHighContrastTitleBarIconURL.clear();
-        rPanelDescriptor.msHelpURL = getString(aChildNode, "HelpURL");
-        rPanelDescriptor.msImplementationURL = rsNodeName;
-        rPanelDescriptor.mnOrderIndex = 100000 + nReadIndex;
-        rPanelDescriptor.mbShowForReadOnlyDocuments = false;
-        rPanelDescriptor.mbWantsCanvas = false;
-        rPanelDescriptor.maContextList.AddContextDescription(Context(sModuleName, OUString("any")), true, OUString());
-    }
-
-    // When there where invalid nodes then we have to adapt the size
-    // of the deck and panel vectors.
-    if (nDeckWriteIndex < maDecks.size())
-        maDecks.resize(nDeckWriteIndex);
-    if (nPanelWriteIndex < maPanels.size())
-        maPanels.resize(nPanelWriteIndex);
-}
-
 void ResourceManager::StorePanelExpansionState (
                         const OUString& rsPanelId,
                         const bool bExpansionState,
@@ -661,32 +428,6 @@ void ResourceManager::StorePanelExpansionState (
                 pEntry->mbIsInitiallyVisible = bExpansionState;
         }
     }
-}
-
-utl::OConfigurationTreeRoot ResourceManager::GetLegacyAddonRootNode (const OUString& rsModuleName)
-{
-    try
-    {
-        const Reference<XComponentContext> xContext(comphelper::getProcessComponentContext());
-        const Reference<frame::XModuleManager2> xModuleAccess = frame::ModuleManager::create(xContext);
-        const comphelper::NamedValueCollection aModuleProperties(xModuleAccess->getByName(rsModuleName));
-        const OUString sWindowStateRef(aModuleProperties.getOrDefault(
-                                       "ooSetupFactoryWindowStateConfigRef",
-                                       OUString()));
-
-        OUStringBuffer aPathComposer;
-        aPathComposer.append("org.openoffice.Office.UI.");
-        aPathComposer.append(sWindowStateRef);
-        aPathComposer.append("/UIElements/States");
-
-        return utl::OConfigurationTreeRoot(xContext, aPathComposer.makeStringAndClear(), false);
-    }
-    catch (const Exception&)
-    {
-        DBG_UNHANDLED_EXCEPTION();
-    }
-
-    return utl::OConfigurationTreeRoot();
 }
 
 void ResourceManager::GetToolPanelNodeNames (
@@ -744,6 +485,53 @@ void ResourceManager::disposeDecks()
 {
     for (DeckContainer::iterator itr = maDecks.begin(); itr != maDecks.end(); ++itr)
         itr->mpDeck.disposeAndClear();
+}
+
+OUString ResourceManager::getString(utl::OConfigurationNode const & aNode, const char* pNodeName)
+{
+    return comphelper::getString(aNode.getNodeValue(pNodeName));
+}
+sal_Int32 ResourceManager::getInt32(utl::OConfigurationNode const & aNode, const char* pNodeName)
+{
+    return comphelper::getINT32(aNode.getNodeValue(pNodeName));
+}
+bool ResourceManager::getBool(utl::OConfigurationNode const & aNode, const char* pNodeName)
+{
+    return comphelper::getBOOL(aNode.getNodeValue(pNodeName));
+}
+
+css::uno::Sequence<OUString> ResourceManager::BuildContextList (ContextList rContextList, bool isEnabled)
+{
+    const ::std::vector<ContextList::Entry>& entries = rContextList.GetEntries();
+
+     css::uno::Sequence<OUString> result(entries.size());
+     long i = 0;
+
+    for (::std::vector<ContextList::Entry>::const_iterator iEntry(entries.begin()), iEnd(entries.end());
+                                                            iEntry!=iEnd; ++iEntry)
+         {
+            OUString appName = iEntry->maContext.msApplication;
+            OUString contextName = iEntry->maContext.msContext;
+            OUString menuCommand = iEntry->msMenuCommand;
+
+            OUString visibility;
+            if (isEnabled)
+                visibility = "visible";
+            else
+                visibility = "hidden";
+
+            OUString element = appName + ", " + contextName +", " + visibility;
+
+            if (!menuCommand.isEmpty())
+                element += ", "+menuCommand;
+
+            result[i] = element;
+
+            i++;
+        }
+
+    return result;
+
 }
 
 } } // end of namespace sfx2::abstractbar

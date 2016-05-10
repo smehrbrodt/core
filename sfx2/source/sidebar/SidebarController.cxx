@@ -31,7 +31,7 @@
 #include <sfx2/sidebar/SidebarDeck.hxx>
 #include <sfx2/abstractbar/Context.hxx>
 #include <sfx2/abstractbar/ContextList.hxx>
-
+#include <sfx2/sidebar/SidebarResourceManager.hxx>
 
 #include <sfx2/sfxresid.hxx>
 #include <sfx2/sfxsids.hrc>
@@ -120,7 +120,7 @@ SidebarController::SidebarController (
       mpResourceManager()
 {
     // Decks and panel collections for this sidebar
-    mpResourceManager = std::unique_ptr<ResourceManager>(new ResourceManager());
+    mpResourceManager = std::unique_ptr<ResourceManager>(new SidebarResourceManager());
 
     registerSidebarForFrame(this, mxFrame->getController());
     // Listen for window events.

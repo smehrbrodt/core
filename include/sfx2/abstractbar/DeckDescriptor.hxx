@@ -31,10 +31,6 @@ class DeckDescriptor
 public:
     OUString msTitle;
     OUString msId;
-    OUString msIconURL;
-    OUString msHighContrastIconURL;
-    OUString msTitleBarIconURL;
-    OUString msHighContrastTitleBarIconURL;
     OUString msHelpURL;
     OUString msHelpText;
     ContextList maContextList;

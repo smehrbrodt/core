@@ -17,40 +17,26 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <sfx2/abstractbar/DeckDescriptor.hxx>
+#include <sfx2/notebookbar/NotebookbarDeckDescriptor.hxx>
 
-namespace sfx2 { namespace abstractbar {
+using namespace sfx2::abstractbar;
 
-DeckDescriptor::DeckDescriptor()
-    : msTitle(),
-      msId(),
-      msHelpURL(),
-      msHelpText(),
-      maContextList(),
-      mbIsEnabled(true),
-      mnOrderIndex(10000), // Default value as defined in Sidebar.xcs
-      mbExperimental(false),
-      mpDeck()
+namespace sfx2 { namespace notebookbar {
+
+NotebookbarDeckDescriptor::NotebookbarDeckDescriptor()
+    : DeckDescriptor()
 {
 }
 
-DeckDescriptor::DeckDescriptor (const DeckDescriptor& rOther)
-    : msTitle(rOther.msTitle),
-      msId(rOther.msId),
-      msHelpURL(rOther.msHelpURL),
-      msHelpText(rOther.msHelpText),
-      maContextList(rOther.maContextList),
-      mbIsEnabled(rOther.mbIsEnabled),
-      mnOrderIndex(rOther.mnOrderIndex),
-      mbExperimental(rOther.mbExperimental),
-      mpDeck(rOther.mpDeck)
+NotebookbarDeckDescriptor::NotebookbarDeckDescriptor (const NotebookbarDeckDescriptor& /*rOther*/)
+    : DeckDescriptor()
 {
 }
 
-DeckDescriptor::~DeckDescriptor()
+NotebookbarDeckDescriptor::~NotebookbarDeckDescriptor()
 {
 }
 
-} } // end of namespace sfx2::abstractbar
+} } // end of namespace sfx2::sidebar
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

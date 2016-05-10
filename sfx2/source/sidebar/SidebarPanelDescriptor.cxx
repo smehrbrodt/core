@@ -17,39 +17,28 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <sfx2/abstractbar/PanelDescriptor.hxx>
+#include <sfx2/sidebar/SidebarPanelDescriptor.hxx>
 
-namespace sfx2 { namespace abstractbar {
+namespace sfx2 { namespace sidebar {
 
-PanelDescriptor::PanelDescriptor()
-    : msTitle(),
-      msId(),
-      msDeckId(),
-      msHelpURL(),
-      maContextList(),
-      msImplementationURL(),
-      mnOrderIndex(10000), // Default value as defined in Sidebar.xcs
-      mbShowForReadOnlyDocuments(false),
-      mbWantsCanvas(false),
-      mbExperimental(false)
+SidebarPanelDescriptor::SidebarPanelDescriptor()
+    : PanelDescriptor(),
+      mbIsTitleBarOptional(false),
+      msTitleBarIconURL(),
+      msHighContrastTitleBarIconURL()
 {
 }
 
-PanelDescriptor::PanelDescriptor (const PanelDescriptor& rOther)
-    : msTitle(rOther.msTitle),
-      msId(rOther.msId),
-      msDeckId(rOther.msDeckId),
-      msHelpURL(rOther.msHelpURL),
-      maContextList(rOther.maContextList),
-      msImplementationURL(rOther.msImplementationURL),
-      mnOrderIndex(rOther.mnOrderIndex),
-      mbShowForReadOnlyDocuments(rOther.mbShowForReadOnlyDocuments),
-      mbWantsCanvas(rOther.mbWantsCanvas),
-      mbExperimental(rOther.mbExperimental)
+SidebarPanelDescriptor::SidebarPanelDescriptor (const SidebarPanelDescriptor& rOther)
+    : PanelDescriptor(),
+      mbIsTitleBarOptional(rOther.mbIsTitleBarOptional),
+      msTitleBarIconURL(rOther.msTitleBarIconURL),
+      msHighContrastTitleBarIconURL(rOther.msHighContrastTitleBarIconURL)
+
 {
 }
 
-PanelDescriptor::~PanelDescriptor()
+SidebarPanelDescriptor::~SidebarPanelDescriptor()
 {
 }
 

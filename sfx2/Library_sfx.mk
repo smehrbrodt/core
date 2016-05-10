@@ -275,8 +275,11 @@ $(eval $(call gb_Library_add_exception_objects,sfx,\
     sfx2/source/notebookbar/NotebookbarChildWindow \
     sfx2/source/notebookbar/NotebookbarController \
     sfx2/source/notebookbar/NotebookbarDeck \
+    sfx2/source/notebookbar/NotebookbarDeckDescriptor \
     sfx2/source/notebookbar/NotebookbarDeckLayouter \
     sfx2/source/notebookbar/NotebookbarDockingWindow \
+    sfx2/source/notebookbar/NotebookbarPanelDescriptor \
+    sfx2/source/notebookbar/NotebookbarResourceManager \
     sfx2/source/notebookbar/NotebookbarTabBar \
     sfx2/source/notebookbar/NotebookbarTabItem \
     sfx2/source/notify/eventsupplier \
@@ -287,8 +290,11 @@ $(eval $(call gb_Library_add_exception_objects,sfx,\
     sfx2/source/sidebar/SidebarChildWindow \
     sfx2/source/sidebar/SidebarController \
     sfx2/source/sidebar/SidebarDeck \
+    sfx2/source/sidebar/SidebarDeckDescriptor \
     sfx2/source/sidebar/SidebarDeckLayouter \
     sfx2/source/sidebar/SidebarDockingWindow \
+    sfx2/source/sidebar/SidebarPanelDescriptor \
+    sfx2/source/sidebar/SidebarResourceManager \
     sfx2/source/sidebar/SidebarTabBar \
     sfx2/source/sidebar/SidebarTabItem \
     sfx2/source/sidebar/UnoPanel \

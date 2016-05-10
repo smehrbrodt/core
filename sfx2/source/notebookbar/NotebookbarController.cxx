@@ -31,7 +31,7 @@
 #include <sfx2/notebookbar/NotebookbarDeck.hxx>
 #include <sfx2/abstractbar/Context.hxx>
 #include <sfx2/abstractbar/ContextList.hxx>
-
+#include <sfx2/notebookbar/NotebookbarResourceManager.hxx>
 
 #include <sfx2/sfxresid.hxx>
 #include <sfx2/sfxsids.hrc>
@@ -114,7 +114,7 @@ NotebookbarController::NotebookbarController (
       mpResourceManager()
 {
     // Decks and panel collections for this Notebookbar
-    mpResourceManager = std::unique_ptr<ResourceManager>(new ResourceManager());
+    mpResourceManager = std::unique_ptr<ResourceManager>(new NotebookbarResourceManager());
 
     registerNotebookbarForFrame(this, mxFrame->getController());
     // Listen for window events.
@@ -500,7 +500,7 @@ void NotebookbarController::CreateDeck(const ::rtl::OUString& rDeckId, bool bFor
 
 void NotebookbarController::CreatePanels(const ::rtl::OUString& rDeckId)
 {
-     DeckDescriptor* pDeckDescriptor = mpResourceManager->GetDeckDescriptor(rDeckId);
+    DeckDescriptor* pDeckDescriptor = mpResourceManager->GetDeckDescriptor(rDeckId);
 
     // init panels bounded to that deck, do not wait them being displayed as may be accessed through API
 

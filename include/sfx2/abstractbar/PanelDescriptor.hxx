@@ -28,11 +28,8 @@ class PanelDescriptor
 {
 public:
     OUString msTitle;
-    bool mbIsTitleBarOptional;
     OUString msId;
     OUString msDeckId;
-    OUString msTitleBarIconURL;
-    OUString msHighContrastTitleBarIconURL;
     OUString msHelpURL;
     ContextList maContextList;
     OUString msImplementationURL;
